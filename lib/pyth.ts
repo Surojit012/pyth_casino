@@ -38,6 +38,11 @@ const MOCK_PRICES: Record<string, number> = {
 let useMock = false;
 const resolvedFeedIds: Record<string, string> = { ...FEED_IDS };
 
+function normalizeFeedId(feedId: string) {
+  const trimmed = feedId.trim();
+  return trimmed.startsWith('0x') ? trimmed : `0x${trimmed}`;
+}
+
 function enableMockTemporarily() {
   if (useMock) return;
   console.warn('Pyth API failed, using mock data for 30s...');
@@ -122,7 +127,7 @@ export async function fetchPrice(asset: string): Promise<PriceData> {
 }
 
 async function getFeedId(asset: string): Promise<string | undefined> {
-  if (resolvedFeedIds[asset]) return resolvedFeedIds[asset];
+  if (resolvedFeedIds[asset]) return normalizeFeedId(resolvedFeedIds[asset]);
 
   try {
     const feeds = await fetchPythJson<
@@ -148,8 +153,9 @@ async function getFeedId(asset: string): Promise<string | undefined> {
     });
 
     if (exact?.id) {
-      resolvedFeedIds[asset] = exact.id;
-      return exact.id;
+      const normalized = normalizeFeedId(exact.id);
+      resolvedFeedIds[asset] = normalized;
+      return normalized;
     }
   } catch (error) {
     console.warn(`Failed to resolve feed id for ${asset}:`, error);

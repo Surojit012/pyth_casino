@@ -10,7 +10,7 @@ export function getConfiguredSlotsRandomnessProviderServer(): SlotsRandomnessPro
 
 export function getConfiguredSlotsRandomnessProviderClient(): SlotsRandomnessProvider {
   const configured = getPublicEnv().NEXT_PUBLIC_SLOTS_RANDOMNESS_PROVIDER?.trim().toLowerCase();
-  if (configured === 'pyth_entropy_v2' && process.env.NODE_ENV !== 'production') return 'pyth_entropy_v2';
+  if (configured === 'pyth_entropy_v2') return 'pyth_entropy_v2';
   return 'local';
 }
 
