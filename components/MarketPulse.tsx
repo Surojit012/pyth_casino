@@ -7,7 +7,7 @@ import { ArrowUpRight, ArrowDownRight, Minus } from 'lucide-react';
 import { SymbolIcon } from '@/components/SymbolIcon';
 import styles from './MarketPulse.module.css';
 
-const ASSETS = ['BTC', 'ETH', 'PYTH'] as const;
+const ASSETS = ['BTC', 'ETH', 'PYTH', 'SOL'] as const;
 
 export default function MarketPulse() {
   const { assets, sourceLabel } = useMarketData();
@@ -41,7 +41,7 @@ export default function MarketPulse() {
       status: 'Live',
       source: sourceLabel,
       trackedAssets: `${ASSETS.length} assets tracked`,
-      coverage: 'BTC • ETH • PYTH',
+      coverage: 'BTC • ETH • PYTH • SOL',
     }),
     [sourceLabel]
   );
