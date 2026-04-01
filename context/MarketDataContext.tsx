@@ -59,7 +59,7 @@ const INITIAL_PRICES: Record<MarketAsset, number> = {
 };
 
 const TICK_INTERVAL_MS = 250;
-const ANCHOR_INTERVAL_MS = 2500;
+const ANCHOR_INTERVAL_MS = 1000;
 const MAX_TICKS = 180;
 // Reduced jitter to prevent cash-out timing exploits
 const MAX_JITTER_PCT = 0.00001;
