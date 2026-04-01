@@ -5,13 +5,15 @@ import { useWallet as useSolanaWallet } from '@solana/wallet-adapter-react';
 import { readCasinoJwt } from '@/lib/clientCasinoAuth';
 import { buildDefaultDisplayName } from '@/lib/profile';
 import { shortenWalletAddress } from '@/lib/solanaWallet';
-import { CalendarDays, PencilLine, Save, Trophy, Wallet, TrendingUp, Activity } from 'lucide-react';
+import Image from 'next/image';
+import { CalendarDays, PencilLine, Save, Trophy, Wallet, TrendingUp, Activity, Upload } from 'lucide-react';
 import styles from './page.module.css';
 
 type ProfilePayload = {
   profile: {
     walletAddress: string;
     displayName: string;
+    avatarUrl: string;
     bio: string;
     balance: number;
     joinedAt: string;
@@ -78,6 +80,7 @@ export default function ProfilePage() {
   const walletAddress = publicKey?.toBase58() ?? '';
   const [profileData, setProfileData] = useState<ProfilePayload | null>(null);
   const [displayName, setDisplayName] = useState('');
+  const [avatarUrl, setAvatarUrl] = useState('');
   const [bio, setBio] = useState('');
   const [editing, setEditing] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -113,6 +116,7 @@ export default function ProfilePage() {
       }
       setProfileData(payload);
       setDisplayName(payload.profile.displayName);
+      setAvatarUrl(payload.profile.avatarUrl);
       setBio(payload.profile.bio);
     } catch (nextError) {
       setProfileData(null);
@@ -146,6 +150,7 @@ export default function ProfilePage() {
         },
         body: JSON.stringify({
           displayName,
+          avatarUrl,
           bio,
         }),
       });
@@ -155,6 +160,7 @@ export default function ProfilePage() {
       }
       setProfileData((prev) => prev ? { ...prev, profile: payload.profile } : prev);
       setDisplayName(payload.profile.displayName);
+      setAvatarUrl(payload.profile.avatarUrl);
       setBio(payload.profile.bio);
       setEditing(false);
       setStatus('Profile updated.');
@@ -163,7 +169,34 @@ export default function ProfilePage() {
     } finally {
       setSaving(false);
     }
-  }, [bio, displayName, walletAddress]);
+  }, [avatarUrl, bio, displayName, walletAddress]);
+
+  const onAvatarSelected = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      setError('Please upload an image file.');
+      return;
+    }
+
+    if (file.size > 1_000_000) {
+      setError('Please choose an image under 1MB.');
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      if (typeof reader.result === 'string') {
+        setAvatarUrl(reader.result);
+        setError('');
+      }
+    };
+    reader.onerror = () => {
+      setError('Failed to read the selected image.');
+    };
+    reader.readAsDataURL(file);
+  }, []);
 
   const initials = useMemo(() => {
     const source = displayName || profileData?.profile.displayName || buildDefaultDisplayName(walletAddress);
@@ -190,8 +223,12 @@ export default function ProfilePage() {
     <div className={`game-page ${styles.page}`}>
       <section className={styles.hero}>
         <div className={styles.heroCard}>
-          <div className={styles.avatar} style={buildAvatarStyle(walletAddress)}>
-            <span>{initials}</span>
+          <div className={styles.avatar} style={!avatarUrl ? buildAvatarStyle(walletAddress) : undefined}>
+            {avatarUrl ? (
+              <Image src={avatarUrl} alt="Profile avatar" fill sizes="72px" className={styles.avatarImage} />
+            ) : (
+              <span>{initials}</span>
+            )}
           </div>
           <div className={styles.heroMeta}>
             <div className={styles.identityRow}>
@@ -217,6 +254,18 @@ export default function ProfilePage() {
 
         {editing ? (
           <div className={styles.editCard}>
+            <div className={styles.uploadBlock}>
+              <span>Profile picture</span>
+              <label className={styles.uploadField}>
+                <input
+                  type="file"
+                  accept="image/png,image/jpeg,image/webp,image/gif"
+                  onChange={onAvatarSelected}
+                />
+                <span><Upload size={14} /> Upload from device</span>
+              </label>
+              <small className={styles.uploadHint}>PNG, JPG, WEBP, or GIF up to 1MB.</small>
+            </div>
             <label>
               <span>Display name</span>
               <input
@@ -324,4 +373,3 @@ export default function ProfilePage() {
     </div>
   );
 }
-

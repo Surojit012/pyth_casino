@@ -26,6 +26,7 @@
 }
 
 .avatar {
+  position: relative;
   width: 72px;
   height: 72px;
   border-radius: 18px;
@@ -36,6 +37,11 @@
   font-size: 1.25rem;
   font-weight: 800;
   box-shadow: inset 0 1px 0 rgba(255,255,255,0.12);
+  overflow: hidden;
+}
+
+.avatarImage {
+  object-fit: cover;
 }
 
 .heroMeta {
@@ -122,6 +128,41 @@
   gap: 6px;
   color: var(--text-secondary);
   font-size: 0.76rem;
+}
+
+.uploadBlock {
+  display: grid;
+  gap: 6px;
+  color: var(--text-secondary);
+  font-size: 0.76rem;
+}
+
+.uploadField {
+  position: relative;
+  overflow: hidden;
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 40px;
+  padding: 0 12px;
+  border: 1px dashed var(--border-color);
+  border-radius: 10px;
+  background: rgba(255,255,255,0.03);
+  color: var(--text-primary);
+  cursor: pointer;
+}
+
+.uploadField input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.uploadHint {
+  color: var(--text-muted);
+  font-size: 0.7rem;
 }
 
 .editCard input,
@@ -272,4 +313,3 @@
     text-align: left;
   }
 }
-

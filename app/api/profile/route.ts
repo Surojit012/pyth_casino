@@ -16,6 +16,18 @@ function sanitizeBio(value: unknown) {
   return String(value ?? '').trim().slice(0, 180);
 }
 
+function sanitizeAvatarUrl(value: unknown) {
+  const avatar = String(value ?? '').trim();
+  if (!avatar) return '';
+  if (!/^data:image\/(png|jpeg|jpg|webp|gif);base64,/i.test(avatar)) {
+    throw new Error('Avatar must be a PNG, JPG, WEBP, or GIF image.');
+  }
+  if (avatar.length > 1_500_000) {
+    throw new Error('Avatar image is too large. Use an image under 1MB.');
+  }
+  return avatar;
+}
+
 export async function GET(request: Request) {
   let walletAddress: string;
   try {
@@ -31,7 +43,7 @@ export async function GET(request: Request) {
     await ensureUserProfileColumns();
 
     const userResult = await db.query(
-      `SELECT id, wallet_address, balance, created_at, updated_at, display_name, bio
+      `SELECT id, wallet_address, balance, created_at, updated_at, display_name, avatar_url, bio
        FROM casino_users
        WHERE wallet_address = $1
        LIMIT 1`,
@@ -95,6 +107,7 @@ export async function GET(request: Request) {
       profile: {
         walletAddress: user.wallet_address,
         displayName: user.display_name || buildDefaultDisplayName(user.wallet_address),
+        avatarUrl: user.avatar_url || '',
         bio: user.bio || '',
         balance: Number(user.balance ?? 0),
         joinedAt: user.created_at,
@@ -151,15 +164,24 @@ export async function PUT(request: Request) {
     );
   }
 
-  let body: { displayName?: string; bio?: string };
+  let body: { displayName?: string; bio?: string; avatarUrl?: string };
   try {
-    body = (await request.json()) as { displayName?: string; bio?: string };
+    body = (await request.json()) as { displayName?: string; bio?: string; avatarUrl?: string };
   } catch {
     return NextResponse.json({ error: 'Invalid JSON body' }, { status: 400 });
   }
 
   const displayName = sanitizeDisplayName(body.displayName);
   const bio = sanitizeBio(body.bio);
+  let avatarUrl = '';
+  try {
+    avatarUrl = sanitizeAvatarUrl(body.avatarUrl);
+  } catch (error) {
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : 'Invalid avatar image.' },
+      { status: 400 }
+    );
+  }
 
   try {
     await ensureUserProfileColumns();
@@ -167,11 +189,12 @@ export async function PUT(request: Request) {
     const result = await db.query(
       `UPDATE casino_users
        SET display_name = $1,
-           bio = $2,
+           avatar_url = $2,
+           bio = $3,
            updated_at = NOW()
-       WHERE wallet_address = $3
-       RETURNING wallet_address, display_name, bio, balance, created_at, updated_at`,
-      [displayName || null, bio || null, walletAddress]
+       WHERE wallet_address = $4
+       RETURNING wallet_address, display_name, avatar_url, bio, balance, created_at, updated_at`,
+      [displayName || null, avatarUrl || null, bio || null, walletAddress]
     );
 
     if (result.rowCount === 0) {
@@ -184,6 +207,7 @@ export async function PUT(request: Request) {
       profile: {
         walletAddress: user.wallet_address,
         displayName: user.display_name || buildDefaultDisplayName(user.wallet_address),
+        avatarUrl: user.avatar_url || '',
         bio: user.bio || '',
         balance: Number(user.balance ?? 0),
         joinedAt: user.created_at,
