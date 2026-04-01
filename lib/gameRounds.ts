@@ -30,7 +30,7 @@ export async function ensureGameRoundsTable() {
         CREATE INDEX IF NOT EXISTS idx_game_rounds_user_created_at
         ON game_rounds (user_id, created_at DESC);
       `);
-    })().catch((error) => {
+    })().catch((error: unknown) => {
       ensureRoundsTablePromise = null;
       throw error;
     });

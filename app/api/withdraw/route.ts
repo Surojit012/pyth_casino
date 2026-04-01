@@ -34,7 +34,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'amount must be a positive number' }, { status: 400 });
   }
 
-  const client = await db.connect().catch((error) => {
+  const client = await db.connect().catch((error: unknown) => {
     throw normalizeDatabaseError(error);
   });
   let transactionRowId: string | null = null;
@@ -124,7 +124,7 @@ export async function POST(request: Request) {
       });
     } catch (transferError) {
       if (transactionRowId) {
-        const recoveryClient = await db.connect().catch((error) => {
+        const recoveryClient = await db.connect().catch((error: unknown) => {
           throw normalizeDatabaseError(error);
         });
         try {

@@ -162,7 +162,7 @@ export async function POST(request: Request) {
       { status: 500 }
     );
   }
-  const client = await db.connect().catch((error) => {
+  const client = await db.connect().catch((error: unknown) => {
     throw normalizeDatabaseError(error);
   });
 

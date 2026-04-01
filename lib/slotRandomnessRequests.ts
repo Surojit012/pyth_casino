@@ -102,7 +102,7 @@ export async function ensureSlotRandomnessRequestsTable() {
         CREATE INDEX IF NOT EXISTS idx_slot_randomness_requests_wallet_created_at
         ON slot_randomness_requests (wallet_address, created_at DESC);
       `);
-    })().catch((error) => {
+    })().catch((error: unknown) => {
       ensureSlotRandomnessRequestsPromise = null;
       throw error;
     });

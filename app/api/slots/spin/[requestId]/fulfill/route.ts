@@ -92,7 +92,7 @@ export async function POST(request: Request, context: RouteContext) {
     );
   }
 
-  const client = await db.connect().catch((error) => {
+  const client = await db.connect().catch((error: unknown) => {
     throw normalizeDatabaseError(error);
   });
 
