@@ -30,41 +30,41 @@ function capToLastTen(items: LiveBetItem[]) {
   return items.slice(0, MAX_BETS);
 }
 
-function randomDirection(): FeedDirection {
-  return Math.random() > 0.5 ? 'UP' : 'DOWN';
-}
-
-function randomAmount() {
-  return Number((Math.random() * 0.35 + 0.02).toFixed(3));
-}
-
-function randomMockWallet() {
-  const chars = '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz';
-  let out = '';
-  for (let i = 0; i < 44; i += 1) {
-    out += chars[Math.floor(Math.random() * chars.length)];
+async function fetchLiveBets(): Promise<LiveBetItem[]> {
+  try {
+    const response = await fetch('/api/live-bets', { cache: 'no-store' });
+    if (!response.ok) return [];
+    const data = await response.json();
+    return data.bets || [];
+  } catch {
+    return [];
   }
-  return out;
-}
-
-function createMockConfirmedBet(offsetMs: number): LiveBetItem {
-  return {
-    id: `seed-${offsetMs}`,
-    wallet: randomMockWallet(),
-    direction: randomDirection(),
-    amountSol: randomAmount(),
-    status: 'confirmed',
-    signature: randomMockWallet(),
-    createdAt: Date.now() - offsetMs,
-  };
 }
 
 export function LiveBetsProvider({ children }: { children: React.ReactNode }) {
-  const [bets, setBets] = useState<LiveBetItem[]>(() => ([
-    createMockConfirmedBet(6_000),
-    createMockConfirmedBet(18_000),
-    createMockConfirmedBet(31_000),
-  ]));
+  const [bets, setBets] = useState<LiveBetItem[]>([]);
+  const [isInitialized, setIsInitialized] = useState(false);
+
+  // Initial fetch
+  useEffect(() => {
+    fetchLiveBets().then((initialBets) => {
+      setBets(initialBets);
+      setIsInitialized(true);
+    });
+  }, []);
+
+  // Poll for updates every 10 seconds
+  useEffect(() => {
+    if (!isInitialized) return;
+
+    const interval = setInterval(() => {
+      fetchLiveBets().then((freshBets) => {
+        setBets(freshBets);
+      });
+    }, 10_000);
+
+    return () => clearInterval(interval);
+  }, [isInitialized]);
 
   const addPendingBet = useCallback((input: { wallet: string; direction: FeedDirection; amountSol: number }) => {
     const id = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
@@ -95,27 +95,18 @@ export function LiveBetsProvider({ children }: { children: React.ReactNode }) {
     setTimeout(() => {
       setBets(prev => prev.map(item => (item.id === id ? { ...item, justConfirmed: false } : item)));
     }, 1200);
+
+    // Refresh from server after confirmation
+    setTimeout(() => {
+      fetchLiveBets().then((freshBets) => {
+        setBets(freshBets);
+      });
+    }, 2000);
   }, []);
 
   const removeBet = useCallback((id: string) => {
     setBets(prev => prev.filter(item => item.id !== id));
   }, []);
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      const id = addPendingBet({
-        wallet: randomMockWallet(),
-        direction: randomDirection(),
-        amountSol: randomAmount(),
-      });
-
-      setTimeout(() => {
-        confirmBet(id, randomMockWallet());
-      }, 1400);
-    }, 12_000);
-
-    return () => clearInterval(interval);
-  }, [addPendingBet, confirmBet]);
 
   const value = useMemo(
     () => ({ bets, addPendingBet, confirmBet, removeBet }),
