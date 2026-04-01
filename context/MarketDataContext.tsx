@@ -26,6 +26,10 @@ export interface AssetMarketState {
   price: number;
   previousPrice: number;
   direction: 'up' | 'down' | 'flat';
+  anchorPrice: number;
+  previousAnchorPrice: number;
+  anchorDirection: 'up' | 'down' | 'flat';
+  anchorChange: number;
   change15s: number;
   volatility: number;
   volatilityLevel: VolatilityLevel;
@@ -70,6 +74,10 @@ function createInitialState(asset: MarketAsset, price: number): AssetMarketState
     price,
     previousPrice: price,
     direction: 'flat',
+    anchorPrice: price,
+    previousAnchorPrice: price,
+    anchorDirection: 'flat',
+    anchorChange: 0,
     change15s: 0,
     volatility: 0,
     volatilityLevel: 'LOW',
@@ -143,22 +151,97 @@ export function MarketDataProvider({ children }: { children: React.ReactNode }) 
         initializedRef.current = true;
 
         setAssets(prev => ({
-          BTC: deriveAssetState(prev.BTC, nextPrices.BTC, 'anchor'),
-          ETH: deriveAssetState(prev.ETH, nextPrices.ETH, 'anchor'),
-          PYTH: deriveAssetState(prev.PYTH, nextPrices.PYTH, 'anchor'),
-          SOL: deriveAssetState(prev.SOL, nextPrices.SOL, 'anchor'),
+          BTC: {
+            ...deriveAssetState(prev.BTC, nextPrices.BTC, 'anchor'),
+            anchorPrice: nextPrices.BTC,
+            previousAnchorPrice: prev.BTC.anchorPrice,
+            anchorDirection: 'flat',
+            anchorChange: 0,
+          },
+          ETH: {
+            ...deriveAssetState(prev.ETH, nextPrices.ETH, 'anchor'),
+            anchorPrice: nextPrices.ETH,
+            previousAnchorPrice: prev.ETH.anchorPrice,
+            anchorDirection: 'flat',
+            anchorChange: 0,
+          },
+          PYTH: {
+            ...deriveAssetState(prev.PYTH, nextPrices.PYTH, 'anchor'),
+            anchorPrice: nextPrices.PYTH,
+            previousAnchorPrice: prev.PYTH.anchorPrice,
+            anchorDirection: 'flat',
+            anchorChange: 0,
+          },
+          SOL: {
+            ...deriveAssetState(prev.SOL, nextPrices.SOL, 'anchor'),
+            anchorPrice: nextPrices.SOL,
+            previousAnchorPrice: prev.SOL.anchorPrice,
+            anchorDirection: 'flat',
+            anchorChange: 0,
+          },
         }));
         return;
       }
 
       anchorPrevRef.current = {
-        BTC: assetsRef.current.BTC.price,
-        ETH: assetsRef.current.ETH.price,
-        PYTH: assetsRef.current.PYTH.price,
-        SOL: assetsRef.current.SOL.price,
+        BTC: assetsRef.current.BTC.anchorPrice,
+        ETH: assetsRef.current.ETH.anchorPrice,
+        PYTH: assetsRef.current.PYTH.anchorPrice,
+        SOL: assetsRef.current.SOL.anchorPrice,
       };
       anchorNextRef.current = nextPrices;
       lastAnchorTsRef.current = Date.now();
+
+      setAssets(prev => ({
+        BTC: {
+          ...prev.BTC,
+          anchorPrice: nextPrices.BTC,
+          previousAnchorPrice: prev.BTC.anchorPrice,
+          anchorDirection:
+            nextPrices.BTC > prev.BTC.anchorPrice
+              ? 'up'
+              : nextPrices.BTC < prev.BTC.anchorPrice
+                ? 'down'
+                : 'flat',
+          anchorChange: getPriceChangePercent(prev.BTC.anchorPrice, nextPrices.BTC),
+        },
+        ETH: {
+          ...prev.ETH,
+          anchorPrice: nextPrices.ETH,
+          previousAnchorPrice: prev.ETH.anchorPrice,
+          anchorDirection:
+            nextPrices.ETH > prev.ETH.anchorPrice
+              ? 'up'
+              : nextPrices.ETH < prev.ETH.anchorPrice
+                ? 'down'
+                : 'flat',
+          anchorChange: getPriceChangePercent(prev.ETH.anchorPrice, nextPrices.ETH),
+        },
+        PYTH: {
+          ...prev.PYTH,
+          anchorPrice: nextPrices.PYTH,
+          previousAnchorPrice: prev.PYTH.anchorPrice,
+          anchorDirection:
+            nextPrices.PYTH > prev.PYTH.anchorPrice
+              ? 'up'
+              : nextPrices.PYTH < prev.PYTH.anchorPrice
+                ? 'down'
+                : 'flat',
+          anchorChange: getPriceChangePercent(prev.PYTH.anchorPrice, nextPrices.PYTH),
+        },
+        SOL: {
+          ...prev.SOL,
+          anchorPrice: nextPrices.SOL,
+          previousAnchorPrice: prev.SOL.anchorPrice,
+          anchorDirection:
+            nextPrices.SOL > prev.SOL.anchorPrice
+              ? 'up'
+              : nextPrices.SOL < prev.SOL.anchorPrice
+                ? 'down'
+                : 'flat',
+          anchorChange: getPriceChangePercent(prev.SOL.anchorPrice, nextPrices.SOL),
+        },
+      }));
     } catch {
       // Keep streaming from the previous anchor data on transient failures.
     }

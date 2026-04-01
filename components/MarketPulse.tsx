@@ -16,15 +16,15 @@ export default function MarketPulse() {
     () =>
       ASSETS.map((symbol) => {
         const market = assets[symbol];
-        const change = market.change15s;
+        const change = market.anchorChange;
         return {
           kind: 'asset' as const,
           symbol,
           name: ASSET_NAMES[symbol],
           icon: ASSET_SYMBOLS[symbol],
-          price: market.price,
+          price: market.anchorPrice,
           change,
-          direction: market.direction,
+          direction: market.anchorDirection,
           mood: market.mood,
           volatilityLevel: market.volatilityLevel,
         };

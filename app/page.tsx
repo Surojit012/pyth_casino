@@ -40,10 +40,10 @@ export default function Home() {
           <div className={styles.heroMarketList}>
             {HERO_ASSETS.map(symbol => {
               const market = assets[symbol];
-              const change = market.change15s;
-              const directionIcon = market.direction === 'up'
+              const change = market.anchorChange;
+              const directionIcon = market.anchorDirection === 'up'
                 ? <ArrowUpRight size={14} />
-                : market.direction === 'down'
+                : market.anchorDirection === 'down'
                   ? <ArrowDownRight size={14} />
                   : <Minus size={14} />;
 
@@ -56,7 +56,7 @@ export default function Home() {
                     <span className={styles.heroMarketSymbol}>{symbol}</span>
                   </div>
                   <div className={styles.heroMarketData}>
-                    <strong>${formatPrice(market.price)}</strong>
+                    <strong>${formatPrice(market.anchorPrice)}</strong>
                     <span className={change >= 0 ? styles.up : styles.down}>
                       {directionIcon} {change >= 0 ? '+' : ''}{change.toFixed(2)}%
                     </span>
