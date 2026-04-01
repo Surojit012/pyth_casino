@@ -15,6 +15,7 @@ import {
   Gamepad2,
   Skull,
   Dices,
+  User,
   Volume2,
   VolumeX,
   Wallet,
@@ -25,6 +26,7 @@ const NAV_LINKS = [
   { href: '/roulette', label: 'Roulette', icon: <Target size={16} /> },
   { href: '/slots', label: 'Slots', icon: <Gamepad2 size={16} /> },
   { href: '/liquidation', label: 'Liquidation', icon: <Skull size={16} /> },
+  { href: '/profile', label: 'Profile', icon: <User size={16} /> },
 ];
 
 function signedPercent(value: number) {

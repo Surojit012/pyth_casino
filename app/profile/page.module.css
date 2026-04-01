@@ -1,0 +1,275 @@
+.page {
+  display: grid;
+  gap: 16px;
+}
+
+.hero {
+  display: grid;
+  gap: 14px;
+}
+
+.heroCard,
+.editCard,
+.statCard,
+.panel,
+.emptyState {
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  background: var(--bg-card);
+}
+
+.heroCard {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 16px;
+  padding: 18px;
+}
+
+.avatar {
+  width: 72px;
+  height: 72px;
+  border-radius: 18px;
+  display: grid;
+  place-items: center;
+  color: #fff;
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  font-weight: 800;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.12);
+}
+
+.heroMeta {
+  display: grid;
+  gap: 10px;
+}
+
+.identityRow {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.identityRow h1 {
+  margin: 4px 0 0;
+  font-size: 1.4rem;
+}
+
+.sectionLabel {
+  font-size: 0.64rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-muted);
+}
+
+.walletText,
+.bio,
+.helper,
+.status,
+.error {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 0.82rem;
+  line-height: 1.5;
+}
+
+.heroFacts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.heroFacts span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.74rem;
+  color: var(--text-secondary);
+}
+
+.editBtn,
+.saveBtn {
+  min-height: 38px;
+  border-radius: 10px;
+  padding: 0 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-weight: 700;
+}
+
+.editBtn {
+  border: 1px solid var(--border-color);
+  background: var(--surface);
+  color: var(--text-primary);
+}
+
+.saveBtn {
+  border: none;
+  background: var(--primary);
+  color: #fff;
+}
+
+.editCard {
+  padding: 16px;
+  display: grid;
+  gap: 12px;
+}
+
+.editCard label {
+  display: grid;
+  gap: 6px;
+  color: var(--text-secondary);
+  font-size: 0.76rem;
+}
+
+.editCard input,
+.editCard textarea {
+  width: 100%;
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  background: var(--bg-surface);
+  color: var(--text-primary);
+  padding: 10px 12px;
+}
+
+.editActions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.statCard {
+  padding: 14px;
+  display: grid;
+  gap: 6px;
+}
+
+.statCard strong {
+  font-family: var(--font-mono);
+  font-size: 1.05rem;
+}
+
+.statCard small {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--text-secondary);
+  font-size: 0.72rem;
+}
+
+.contentGrid {
+  display: grid;
+  grid-template-columns: 1.3fr 1fr;
+  gap: 12px;
+}
+
+.panel {
+  padding: 14px;
+  display: grid;
+  gap: 12px;
+}
+
+.panelHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+}
+
+.panelHeader h2 {
+  margin: 0;
+  font-size: 0.96rem;
+}
+
+.panelHeader span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--text-muted);
+  font-size: 0.72rem;
+}
+
+.roundList {
+  display: grid;
+  gap: 8px;
+}
+
+.rowCard {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: rgba(255,255,255,0.03);
+}
+
+.rowCard div {
+  display: grid;
+  gap: 3px;
+}
+
+.rowCard strong {
+  font-size: 0.8rem;
+}
+
+.rowCard span {
+  font-size: 0.72rem;
+  color: var(--text-secondary);
+}
+
+.rowMeta {
+  text-align: right;
+}
+
+.positive {
+  color: var(--green);
+}
+
+.negative,
+.error {
+  color: var(--neon-red);
+}
+
+.emptyState {
+  padding: 28px;
+}
+
+.emptyState h1 {
+  margin: 0 0 8px;
+  font-size: 1.25rem;
+}
+
+@media (max-width: 980px) {
+  .statsGrid,
+  .contentGrid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 760px) {
+  .heroCard,
+  .statsGrid,
+  .contentGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .identityRow,
+  .rowCard {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .rowMeta {
+    text-align: left;
+  }
+}
+
