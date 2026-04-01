@@ -22,6 +22,9 @@ type ReelTriplet = [string, string, string];
 type ReelStrip = string[];
 
 const BET_PRESETS = [0.01, 0.05, 0.1, 0.25];
+const SUPPORTED_ASSETS = ['SOL', 'ETH', 'BTC', 'PYTH'] as const;
+type SupportedAsset = typeof SUPPORTED_ASSETS[number];
+
 const REEL_STOP_TIMINGS = {
   LOW: [1150, 1750, 2350],
   MEDIUM: [980, 1520, 2060],
@@ -130,6 +133,7 @@ export default function SlotsPage() {
   const { unlockAudio, playCue } = useSound();
   const { latestProof, proofHistory, recordProof } = useGameProof('slots');
 
+  const [selectedAsset, setSelectedAsset] = useState<SupportedAsset>('SOL');
   const [betAmount, setBetAmount] = useState(0.05);
   const [gameState, setGameState] = useState<GameState>('idle');
   const [reelColumns, setReelColumns] = useState<ReelTriplet[]>(() => [
@@ -602,7 +606,7 @@ export default function SlotsPage() {
           </div>
           <div className={styles.previewCard}>
             <span>Bet</span>
-            <strong>{betAmount.toFixed(2)} SOL</strong>
+            <strong>{betAmount.toFixed(2)} {selectedAsset}</strong>
             <small>Ready to spin</small>
           </div>
         </div>
@@ -684,6 +688,27 @@ export default function SlotsPage() {
       <section className={styles.controlsCard}>
         <div className={styles.controlsTop}>
           <div>
+            <span className={styles.controlLabel}>Asset</span>
+            <div className={styles.betPresets}>
+              {SUPPORTED_ASSETS.map(asset => (
+                <button
+                  key={asset}
+                  className={`${styles.presetBtn} ${selectedAsset === asset ? styles.presetBtnActive : ''}`}
+                  onClick={() => {
+                    unlockAudio();
+                    playCue('click');
+                    setSelectedAsset(asset);
+                  }}
+                  disabled={gameState === 'spinning' || asset !== 'SOL'}
+                  title={asset !== 'SOL' ? 'Coming soon' : undefined}
+                >
+                  {asset}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div>
             <span className={styles.controlLabel}>Quick bet</span>
             <div className={styles.betPresets}>
               {BET_PRESETS.map(preset => (
@@ -697,7 +722,7 @@ export default function SlotsPage() {
                   }}
                   disabled={gameState === 'spinning'}
                 >
-                  {preset.toFixed(2)} SOL
+                  {preset.toFixed(2)} {selectedAsset}
                 </button>
               ))}
             </div>
@@ -705,7 +730,7 @@ export default function SlotsPage() {
 
           <div className={styles.payoutPreview}>
             <span className={styles.controlLabel}>Potential line</span>
-            <strong>{(betAmount * volatility).toFixed(4)} to {(betAmount * 50 * volatility).toFixed(4)} SOL</strong>
+            <strong>{(betAmount * volatility).toFixed(4)} to {(betAmount * 50 * volatility).toFixed(4)} {selectedAsset}</strong>
             <small>Any pair to top triple, volatility included</small>
           </div>
         </div>
