@@ -7,25 +7,44 @@ import { ArrowUpRight, ArrowDownRight, Minus } from 'lucide-react';
 import { SymbolIcon } from '@/components/SymbolIcon';
 import styles from './MarketPulse.module.css';
 
-const ASSETS = ['SOL'] as const;
+const ASSETS = ['BTC', 'ETH', 'PYTH'] as const;
 
 export default function MarketPulse() {
   const { assets, sourceLabel } = useMarketData();
 
-  const rows = useMemo(() => ASSETS.map(symbol => {
-    const market = assets[symbol];
-    const change = market.change15s;
-    return {
-      symbol,
-      name: ASSET_NAMES[symbol],
-      icon: ASSET_SYMBOLS[symbol],
-      price: market.price,
-      change,
-      direction: market.direction,
-      mood: market.mood,
-      volatilityLevel: market.volatilityLevel,
-    };
-  }), [assets]);
+  const rows = useMemo(
+    () =>
+      ASSETS.map((symbol) => {
+        const market = assets[symbol];
+        const change = market.change15s;
+        return {
+          kind: 'asset' as const,
+          symbol,
+          name: ASSET_NAMES[symbol],
+          icon: ASSET_SYMBOLS[symbol],
+          price: market.price,
+          change,
+          direction: market.direction,
+          mood: market.mood,
+          volatilityLevel: market.volatilityLevel,
+        };
+      }),
+    [assets]
+  );
+
+  const oracleCard = useMemo(
+    () => ({
+      kind: 'oracle' as const,
+      symbol: 'PYTH',
+      name: 'Oracle Network',
+      icon: 'pyth',
+      status: 'Live',
+      source: sourceLabel,
+      trackedAssets: `${ASSETS.length} assets tracked`,
+      coverage: 'BTC • ETH • PYTH',
+    }),
+    [sourceLabel]
+  );
 
   return (
     <section className={styles.pulse}>
@@ -60,6 +79,28 @@ export default function MarketPulse() {
             </div>
           </article>
         ))}
+        <article className={`${styles.card} ${styles.oracleCard}`}>
+          <div className={styles.cardTop}>
+            <div className={styles.asset}>
+              <span className={styles.assetIcon}>
+                <SymbolIcon symbol={oracleCard.icon} size={20} />
+              </span>
+              <div className={styles.assetText}>
+                <strong>{oracleCard.symbol}</strong>
+                <span>{oracleCard.name}</span>
+              </div>
+            </div>
+            <span className={`${styles.change} ${styles.up}`}>
+              <ArrowUpRight size={14} /> {oracleCard.status}
+            </span>
+          </div>
+          <div className={styles.oracleValue}>{oracleCard.coverage}</div>
+          <div className={styles.meta}>
+            <span className={styles.tier}>{oracleCard.trackedAssets}</span>
+            <span className={styles.mood}>Pyth Network</span>
+          </div>
+          <div className={styles.oracleSource}>{oracleCard.source}</div>
+        </article>
       </div>
     </section>
   );

@@ -42,6 +42,12 @@ export const SymbolIcon: React.FC<SymbolIconProps> = ({ symbol, className, size 
           </span>
         </span>
       );
+    case 'pyth':
+      return (
+        <span className={[tileClass, styles.pyth].join(' ')} style={iconStyle} aria-label="Pyth symbol">
+          <span className={styles.label}>PY</span>
+        </span>
+      );
     case 'diamond':
       return (
         <span className={[coinClass, styles.diamond].join(' ')} style={iconStyle} aria-label="Diamond symbol">

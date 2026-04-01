@@ -13,7 +13,7 @@ import {
   type VolatilityLevel,
 } from '@/lib/volatility';
 
-export type MarketAsset = 'BTC' | 'ETH' | 'SOL';
+export type MarketAsset = 'BTC' | 'ETH' | 'PYTH' | 'SOL';
 
 export interface MarketTick {
   price: number;
@@ -46,10 +46,11 @@ export interface UseMarketDataResult {
   sourceLabel: string;
 }
 
-const MARKET_ASSETS: MarketAsset[] = ['BTC', 'ETH', 'SOL'];
+const MARKET_ASSETS: MarketAsset[] = ['BTC', 'ETH', 'PYTH', 'SOL'];
 const INITIAL_PRICES: Record<MarketAsset, number> = {
   BTC: 67432.5,
   ETH: 3521.8,
+  PYTH: 0.52,
   SOL: 142.35,
 };
 
@@ -111,6 +112,7 @@ export function MarketDataProvider({ children }: { children: React.ReactNode }) 
   const [assets, setAssets] = useState<Record<MarketAsset, AssetMarketState>>(() => ({
     BTC: createInitialState('BTC', INITIAL_PRICES.BTC),
     ETH: createInitialState('ETH', INITIAL_PRICES.ETH),
+    PYTH: createInitialState('PYTH', INITIAL_PRICES.PYTH),
     SOL: createInitialState('SOL', INITIAL_PRICES.SOL),
   }));
 
@@ -130,6 +132,7 @@ export function MarketDataProvider({ children }: { children: React.ReactNode }) 
       const nextPrices: Record<MarketAsset, number> = {
         BTC: priceData.find(p => p.asset === 'BTC')?.price ?? assetsRef.current.BTC.price,
         ETH: priceData.find(p => p.asset === 'ETH')?.price ?? assetsRef.current.ETH.price,
+        PYTH: priceData.find(p => p.asset === 'PYTH')?.price ?? assetsRef.current.PYTH.price,
         SOL: priceData.find(p => p.asset === 'SOL')?.price ?? assetsRef.current.SOL.price,
       };
 
@@ -142,6 +145,7 @@ export function MarketDataProvider({ children }: { children: React.ReactNode }) 
         setAssets(prev => ({
           BTC: deriveAssetState(prev.BTC, nextPrices.BTC, 'anchor'),
           ETH: deriveAssetState(prev.ETH, nextPrices.ETH, 'anchor'),
+          PYTH: deriveAssetState(prev.PYTH, nextPrices.PYTH, 'anchor'),
           SOL: deriveAssetState(prev.SOL, nextPrices.SOL, 'anchor'),
         }));
         return;
@@ -150,6 +154,7 @@ export function MarketDataProvider({ children }: { children: React.ReactNode }) 
       anchorPrevRef.current = {
         BTC: assetsRef.current.BTC.price,
         ETH: assetsRef.current.ETH.price,
+        PYTH: assetsRef.current.PYTH.price,
         SOL: assetsRef.current.SOL.price,
       };
       anchorNextRef.current = nextPrices;
