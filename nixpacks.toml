@@ -1,2 +1,2 @@
-[build]
-installCommand = "npm install --no-audit"
+[install]
+cmds = ["npm install --no-audit"]
