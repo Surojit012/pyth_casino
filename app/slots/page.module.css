@@ -1,0 +1,612 @@
+.shell {
+  display: grid;
+  gap: 16px;
+}
+
+.hero,
+.machineCard,
+.controlsCard,
+.payoutTable,
+.historyCard {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  background: rgba(17, 18, 23, 0.96);
+  box-shadow: 0 12px 22px rgba(0, 0, 0, 0.16);
+}
+
+.hero,
+.machineCard,
+.controlsCard {
+  padding: 16px;
+}
+
+.hero::before,
+.machineCard::before,
+.controlsCard::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.04), transparent 46%);
+}
+
+.liveBar,
+.previewStrip,
+.controlsTop,
+.footerGrid {
+  position: relative;
+  z-index: 1;
+}
+
+.liveBar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.liveIndicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  font-family: var(--font-display);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.liveDot {
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  background: var(--primary);
+  box-shadow: 0 0 12px rgba(255, 59, 31, 0.45);
+  animation: live-blink 1.2s ease-in-out infinite;
+}
+
+.techRow {
+  display: inline-flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.techRow span,
+.controlLabel,
+.footerTitle,
+.ribbonLabel,
+.reelTag,
+.assetLabel {
+  font-family: var(--font-display);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+}
+
+.techRow span {
+  padding: 4px 8px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text-secondary);
+  font-size: 0.64rem;
+}
+
+.priceBoard {
+  display: grid;
+  justify-items: center;
+  gap: 4px;
+  text-align: center;
+  margin-bottom: 12px;
+  transition: transform 220ms ease, filter 220ms ease;
+}
+
+.assetLabel {
+  color: var(--text-muted);
+  font-size: 0.68rem;
+}
+
+.priceValue {
+  font-family: var(--font-display);
+  font-size: clamp(1.8rem, 4vw, 2.1rem);
+  line-height: 0.9;
+  letter-spacing: -0.05em;
+}
+
+.priceChange {
+  font-family: var(--font-mono);
+  color: var(--text-secondary);
+  font-size: 0.78rem;
+}
+
+.priceUp .priceValue,
+.priceUp .priceChange {
+  color: var(--green);
+  text-shadow: none;
+}
+
+.priceDown .priceValue,
+.priceDown .priceChange {
+  color: #ef4444;
+  text-shadow: none;
+}
+
+.previewStrip {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.randomnessBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  width: fit-content;
+  padding: 7px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--text-secondary);
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.randomnessDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #22c55e;
+  box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.12);
+}
+
+.previewCard,
+.resultRibbon,
+.payoutRow,
+.historyItem,
+.historyEmpty {
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.previewCard {
+  padding: 12px;
+  display: grid;
+  gap: 4px;
+  transition: transform 180ms ease, box-shadow 180ms ease;
+}
+
+.previewCard:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 18px rgba(0, 0, 0, 0.14);
+}
+
+.previewCard span,
+.previewCard small {
+  color: var(--text-secondary);
+}
+
+.previewCard span,
+.controlLabel,
+.footerTitle,
+.ribbonLabel {
+  font-size: 0.72rem;
+}
+
+.previewCard strong {
+  font-family: var(--font-display);
+  font-size: 1rem;
+  letter-spacing: -0.03em;
+}
+
+.machineCard {
+  display: grid;
+  gap: 14px;
+  transition: transform 220ms ease, box-shadow 220ms ease;
+}
+
+.machineCard:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 14px 22px rgba(0, 0, 0, 0.16);
+}
+
+.machineLive {
+  box-shadow: 0 0 0 1px rgba(255, 59, 31, 0.12), 0 14px 22px rgba(0, 0, 0, 0.16);
+}
+
+.machineWild {
+  animation: machine-shake 220ms linear infinite;
+}
+
+.machineFrame {
+  position: relative;
+  padding: 14px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.reelDeck {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.reelColumn {
+  position: relative;
+  padding: 12px 10px 26px;
+  border-radius: 12px;
+  background: rgba(0, 0, 0, 0.24);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
+}
+
+.reelColumn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 18px rgba(0, 0, 0, 0.14);
+}
+
+.reelColumnSpinning {
+  border-color: rgba(255, 59, 31, 0.42);
+  box-shadow: 0 0 20px rgba(255, 59, 31, 0.14);
+}
+
+.reelColumnWinning {
+  border-color: rgba(34, 197, 94, 0.5);
+  box-shadow: 0 0 28px rgba(34, 197, 94, 0.18);
+}
+
+.reelMask {
+  height: 220px;
+  overflow: hidden;
+  mask-image: linear-gradient(to bottom, transparent 0%, rgba(0, 0, 0, 0.75) 14%, rgba(0, 0, 0, 1) 24%, rgba(0, 0, 0, 1) 76%, rgba(0, 0, 0, 0.75) 86%, transparent 100%);
+}
+
+.reelStrip {
+  display: grid;
+  gap: 10px;
+  transform: translateY(-10px);
+  will-change: transform;
+  backface-visibility: hidden;
+}
+
+.reelColumnSpinning .reelStrip {
+  animation: reel-spin 720ms linear infinite;
+}
+
+.machineWild .reelColumnSpinning .reelStrip {
+  animation-duration: 500ms;
+}
+
+.reelStripSpinLong {
+  animation-timing-function: cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+.reelCell {
+  min-height: 64px;
+  display: grid;
+  place-items: center;
+  border-radius: 20px;
+  transition: transform 180ms ease, opacity 180ms ease, background-color 180ms ease;
+}
+
+.reelSide {
+  opacity: 0.38;
+  transform: scale(0.88);
+}
+
+.reelCenter {
+  opacity: 1;
+  background: rgba(255, 255, 255, 0.05);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.04);
+}
+
+.reelColumnWinning .reelCenter {
+  animation: winner-pulse 1s ease-in-out infinite;
+}
+
+.reelTag {
+  position: absolute;
+  left: 50%;
+  bottom: 10px;
+  transform: translateX(-50%);
+  color: var(--text-muted);
+  font-size: 0.64rem;
+}
+
+.payline {
+  position: absolute;
+  inset: 50% 18px auto;
+  height: 2px;
+  transform: translateY(-1px);
+  background: linear-gradient(90deg, transparent, rgba(255, 59, 31, 0.7), transparent);
+  opacity: 0.58;
+}
+
+.resultRibbon {
+  padding: 16px 18px;
+  display: grid;
+  gap: 5px;
+}
+
+.resultRibbon strong {
+  font-family: var(--font-display);
+  font-size: 1.45rem;
+  letter-spacing: -0.03em;
+}
+
+.resultRibbon small {
+  color: var(--text-secondary);
+}
+
+.resultRibbonWin {
+  border-color: rgba(34, 197, 94, 0.35);
+  background: rgba(34, 197, 94, 0.09);
+}
+
+.resultRibbonLoss {
+  border-color: rgba(239, 68, 68, 0.28);
+  background: rgba(239, 68, 68, 0.08);
+}
+
+.controlsCard {
+  display: grid;
+  gap: 14px;
+}
+
+.controlsTop {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  gap: 12px;
+  align-items: end;
+}
+
+.controlLabel,
+.footerTitle,
+.ribbonLabel {
+  display: inline-block;
+  color: var(--text-muted);
+  margin-bottom: 10px;
+}
+
+.betPresets {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.presetBtn,
+.spinBtn {
+  transition: transform 140ms ease, box-shadow 180ms ease, border-color 180ms ease, background-color 180ms ease;
+}
+
+.presetBtn {
+  padding: 10px 18px;
+  border-radius: 16px;
+  border: 1px solid var(--border-color);
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--text-secondary);
+  font-family: var(--font-mono);
+  font-size: 0.92rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.presetBtn:hover:not(:disabled) {
+  transform: scale(1.02);
+  border-color: rgba(255, 59, 31, 0.4);
+}
+
+.presetBtn:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+.presetBtnActive {
+  border-color: rgba(255, 59, 31, 0.5);
+  background: rgba(255, 59, 31, 0.12);
+  color: #fff;
+}
+
+.payoutPreview {
+  padding: 12px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.payoutPreview strong {
+  display: block;
+  font-family: var(--font-display);
+  font-size: 1rem;
+  letter-spacing: -0.03em;
+}
+
+.payoutPreview small {
+  color: var(--text-secondary);
+}
+
+.spinBtn {
+  position: relative;
+  isolation: isolate;
+  min-height: 42px;
+  border: none;
+  border-radius: 10px;
+  background: linear-gradient(135deg, rgba(255, 59, 31, 1), rgba(255, 109, 47, 1));
+  cursor: pointer;
+  overflow: hidden;
+}
+
+.spinBtn:hover:not(:disabled) {
+  transform: scale(1.02);
+  box-shadow: 0 12px 20px rgba(255, 59, 31, 0.16);
+}
+
+.spinBtn:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+.spinBtn:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.spinBtnGlow {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(120deg, transparent 0%, rgba(255, 255, 255, 0.28) 45%, transparent 70%);
+  transform: translateX(-120%);
+}
+
+.spinBtn:hover:not(:disabled) .spinBtnGlow,
+.spinBtnSpinning .spinBtnGlow {
+  animation: sheen 1.1s ease forwards;
+}
+
+.spinBtnSpinning {
+  animation: button-pulse 0.8s ease-in-out infinite;
+}
+
+.spinBtnText {
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  font-family: var(--font-display);
+  font-size: 0.82rem;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  color: #fff;
+}
+
+.footerGrid {
+  display: grid;
+  grid-template-columns: 1.2fr 0.8fr;
+  gap: 12px;
+}
+
+.payoutTable,
+.historyCard {
+  padding: 14px;
+}
+
+.footerTitle {
+  margin-bottom: 16px;
+}
+
+.payoutGrid,
+.historyList {
+  display: grid;
+  gap: 10px;
+}
+
+.payoutGrid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.payoutRow,
+.historyItem,
+.historyEmpty {
+  padding: 13px 14px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.payoutRow span,
+.historySymbols {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.payoutRow strong,
+.historyMeta {
+  font-family: var(--font-mono);
+  font-weight: 700;
+}
+
+.historyWin {
+  border-color: rgba(34, 197, 94, 0.34);
+  background: rgba(34, 197, 94, 0.08);
+}
+
+.historyEmpty {
+  justify-content: flex-start;
+  color: var(--text-secondary);
+}
+
+@keyframes live-blink {
+  0%, 100% { opacity: 0.35; transform: scale(0.92); }
+  50% { opacity: 1; transform: scale(1); }
+}
+
+@keyframes reel-spin {
+  0% { transform: translate3d(0, -12px, 0); }
+  100% { transform: translate3d(0, -180px, 0); }
+}
+
+@keyframes winner-pulse {
+  0%, 100% { box-shadow: inset 0 0 0 1px rgba(255,255,255,0.04), 0 0 0 rgba(34, 197, 94, 0.12); }
+  50% { box-shadow: inset 0 0 0 1px rgba(34, 197, 94, 0.45), 0 0 22px rgba(34, 197, 94, 0.2); }
+}
+
+@keyframes machine-shake {
+  0%, 100% { transform: translate3d(0, 0, 0); }
+  25% { transform: translate3d(1px, 0, 0); }
+  75% { transform: translate3d(-1px, 0, 0); }
+}
+
+@keyframes sheen {
+  0% { transform: translateX(-120%); }
+  100% { transform: translateX(120%); }
+}
+
+@keyframes button-pulse {
+  0%, 100% { box-shadow: 0 20px 44px rgba(255, 59, 31, 0.18); }
+  50% { box-shadow: 0 28px 52px rgba(255, 59, 31, 0.28); }
+}
+
+@media (max-width: 960px) {
+  .previewStrip,
+  .controlsTop,
+  .footerGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 720px) {
+  .hero,
+  .machineCard,
+  .controlsCard,
+  .payoutTable,
+  .historyCard {
+    padding: 18px;
+    border-radius: 22px;
+  }
+
+  .liveBar {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .reelDeck {
+    gap: 12px;
+  }
+
+  .reelMask {
+    height: 240px;
+  }
+
+  .reelCell {
+    min-height: 70px;
+  }
+
+  .payoutGrid {
+    grid-template-columns: 1fr;
+  }
+}

@@ -1,0 +1,137 @@
+.feed {
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  background: var(--bg-card);
+  margin-bottom: var(--space-2xl);
+  overflow: hidden;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.header h3 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.header span {
+  color: var(--text-muted);
+  font-size: 0.7rem;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+}
+
+.item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  animation: feed-slide-in 0.3s ease;
+}
+
+.item:last-child {
+  border-bottom: 0;
+}
+
+.main {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.wallet {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+}
+
+.amount {
+  font-family: var(--font-mono);
+  font-size: 0.76rem;
+  color: var(--text-primary);
+}
+
+.up {
+  color: var(--green);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+
+.down {
+  color: var(--primary);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+
+.meta {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--text-muted);
+  font-size: 0.7rem;
+}
+
+.pendingLabel {
+  color: #f59e0b;
+  text-transform: uppercase;
+}
+
+.confirmedLabel {
+  color: var(--green);
+  text-transform: uppercase;
+}
+
+.pending {
+  background: rgba(245, 158, 11, 0.04);
+}
+
+.confirmed {
+  background: rgba(34, 197, 94, 0.03);
+}
+
+.confirmGlow {
+  animation: feed-confirm-glow 1s ease;
+}
+
+@keyframes feed-slide-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes feed-confirm-glow {
+  0% {
+    box-shadow: inset 0 0 0 0 rgba(34, 197, 94, 0.45);
+  }
+  100% {
+    box-shadow: inset 0 0 0 10px rgba(34, 197, 94, 0);
+  }
+}
+
+@media (max-width: 760px) {
+  .item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 5px;
+  }
+}

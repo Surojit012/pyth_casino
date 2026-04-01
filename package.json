@@ -1,0 +1,48 @@
+{
+  "name": "pyth_casino",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "node .next/standalone/server.js",
+    "start:next": "next start",
+    "lint": "eslint",
+    "create-token": "tsx scripts/create-token.ts",
+    "fund-treasury": "tsx scripts/fund-treasury.ts",
+    "check-balances": "tsx scripts/check-balances.ts",
+    "entropy-bridge-worker": "tsx scripts/entropy-bridge-worker.ts"
+  },
+  "dependencies": {
+    "@coral-xyz/anchor": "^0.32.1",
+    "@privy-io/react-auth": "^3.18.0",
+    "@pythnetwork/entropy-sdk-solidity": "^2.2.1",
+    "@solana/spl-token": "^0.4.14",
+    "@solana/wallet-adapter-base": "^0.9.27",
+    "@solana/wallet-adapter-react": "^0.15.39",
+    "@solana/wallet-adapter-react-ui": "^0.9.39",
+    "@solana/wallet-adapter-wallets": "^0.19.37",
+    "@solana/web3.js": "^1.98.4",
+    "bs58": "^6.0.0",
+    "jsonwebtoken": "^9.0.3",
+    "lucide-react": "^1.7.0",
+    "next": "16.2.1",
+    "pg": "^8.20.0",
+    "pg-mem": "^3.0.14",
+    "react": "19.2.4",
+    "react-dom": "19.2.4",
+    "tweetnacl": "^1.0.3"
+  },
+  "devDependencies": {
+    "@types/bs58": "^4.0.4",
+    "@types/jsonwebtoken": "^9.0.10",
+    "@types/node": "^20",
+    "@types/pg": "^8.20.0",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "eslint": "^9",
+    "eslint-config-next": "16.2.1",
+    "tsx": "^4.21.0",
+    "typescript": "^5"
+  }
+}

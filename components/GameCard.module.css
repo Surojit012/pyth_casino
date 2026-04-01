@@ -1,0 +1,119 @@
+.card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  text-align: left;
+  padding: 20px;
+  background: var(--surface);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  text-decoration: none;
+  overflow: hidden;
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast), border-color var(--transition-fast);
+}
+
+.card:hover {
+  transform: translateY(-4px);
+  border-color: var(--border-strong);
+  box-shadow: 0 12px 20px rgba(0, 0, 0, 0.18);
+}
+
+.card:hover .ctaArrow {
+  transform: translateX(3px);
+}
+
+.tag {
+  display: inline-flex;
+  margin-bottom: 16px;
+  padding: 4px 10px;
+  border-radius: var(--radius-full);
+  font-size: 0.64rem;
+  font-family: var(--font-display);
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.iconWrap {
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.03);
+  margin-bottom: 12px;
+}
+
+.icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-primary);
+}
+
+.title {
+  font-family: var(--font-display);
+  font-size: clamp(1.1rem, 2vw, 1.35rem);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  margin-bottom: 8px;
+  color: var(--text-primary);
+  line-height: 1.05;
+}
+
+.description {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  line-height: 1.56;
+  margin-bottom: auto;
+  max-width: 54ch;
+}
+
+.cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 18px;
+  font-family: var(--font-display);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-primary);
+}
+
+.ctaArrow {
+  transition: transform var(--transition-fast);
+  font-size: 1rem;
+}
+
+.featured {
+  min-height: 320px;
+  padding: 24px;
+}
+
+.featured .title {
+  font-size: clamp(1.4rem, 2.6vw, 1.75rem);
+  margin-bottom: 10px;
+}
+
+.featured .description {
+  font-size: 0.9rem;
+  max-width: 62ch;
+}
+
+.default {
+  min-height: 220px;
+}
+
+@media (max-width: 860px) {
+  .featured,
+  .default {
+    min-height: auto;
+  }
+}

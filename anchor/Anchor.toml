@@ -1,0 +1,19 @@
+[features]
+seeds = false
+skip-lint = false
+
+[programs.devnet]
+pyth_roulette = "Fg6PaFpoGXkYsidMpWxTWqkZP2fYh9fJgYkq3P8fA6w"
+
+[programs.localnet]
+pyth_roulette = "Fg6PaFpoGXkYsidMpWxTWqkZP2fYh9fJgYkq3P8fA6w"
+
+[registry]
+url = "https://api.apr.dev"
+
+[provider]
+cluster = "Devnet"
+wallet = "~/.config/solana/id.json"
+
+[scripts]
+test = "anchor test"

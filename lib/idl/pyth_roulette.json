@@ -1,0 +1,247 @@
+{
+  "address": "9C2rBMBfZXDpPXtMdMiKs6cGjZjHujDEoVKmie6KRLJN",
+  "metadata": {
+    "name": "pyth_roulette",
+    "version": "0.1.0",
+    "spec": "0.1.0",
+    "description": "Created with Anchor"
+  },
+  "instructions": [
+    {
+      "name": "place_bet",
+      "discriminator": [
+        222,
+        62,
+        67,
+        220,
+        63,
+        166,
+        126,
+        33
+      ],
+      "accounts": [
+        {
+          "name": "bet",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "user",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "vault",
+          "docs": [
+            "Vault PDA — derived from VAULT_SEED. Only the program can sign transfers out."
+          ],
+          "writable": true
+        },
+        {
+          "name": "pyth_btc_price",
+          "docs": [
+            "Pyth BTC/USD price feed — pinned to trusted devnet address."
+          ],
+          "address": "HovQMDrbAgAYPCmHVSrezcSmkMtXSSUsLDFANExrZh2J"
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "amount",
+          "type": "u64"
+        },
+        {
+          "name": "direction",
+          "type": "bool"
+        }
+      ]
+    },
+    {
+      "name": "resolve_bet",
+      "discriminator": [
+        137,
+        132,
+        33,
+        97,
+        48,
+        208,
+        30,
+        159
+      ],
+      "accounts": [
+        {
+          "name": "bet",
+          "writable": true
+        },
+        {
+          "name": "user",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "vault",
+          "docs": [
+            "Vault PDA — same seed derivation for payout transfers."
+          ],
+          "writable": true
+        },
+        {
+          "name": "pyth_btc_price",
+          "docs": [
+            "Pyth BTC/USD price feed — same pinned address for resolution."
+          ],
+          "address": "HovQMDrbAgAYPCmHVSrezcSmkMtXSSUsLDFANExrZh2J"
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": []
+    }
+  ],
+  "accounts": [
+    {
+      "name": "Bet",
+      "discriminator": [
+        147,
+        23,
+        35,
+        59,
+        15,
+        75,
+        155,
+        32
+      ]
+    }
+  ],
+  "events": [
+    {
+      "name": "BetResolved",
+      "discriminator": [
+        133,
+        89,
+        89,
+        125,
+        4,
+        219,
+        82,
+        137
+      ]
+    }
+  ],
+  "errors": [
+    {
+      "code": 6000,
+      "name": "BetAlreadyResolved",
+      "msg": "Bet is already resolved"
+    },
+    {
+      "code": 6001,
+      "name": "UnauthorizedResolver",
+      "msg": "Only the bet owner can resolve this bet"
+    },
+    {
+      "code": 6002,
+      "name": "InvalidPythPriceFeed",
+      "msg": "Invalid Pyth BTC price feed account"
+    },
+    {
+      "code": 6003,
+      "name": "ZeroBetAmount",
+      "msg": "Bet amount must be greater than zero"
+    },
+    {
+      "code": 6004,
+      "name": "TooEarlyToResolve",
+      "msg": "Too early to resolve — must wait at least 60 seconds after placing"
+    },
+    {
+      "code": 6005,
+      "name": "ResolutionWindowExpired",
+      "msg": "Resolution window expired — bet must be resolved within 5 minutes"
+    },
+    {
+      "code": 6006,
+      "name": "PayoutOverflow",
+      "msg": "Payout calculation overflowed"
+    }
+  ],
+  "types": [
+    {
+      "name": "Bet",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "player",
+            "type": "pubkey"
+          },
+          {
+            "name": "amount",
+            "type": "u64"
+          },
+          {
+            "name": "direction",
+            "type": "bool"
+          },
+          {
+            "name": "resolved",
+            "type": "bool"
+          },
+          {
+            "name": "won",
+            "type": "bool"
+          },
+          {
+            "name": "start_price",
+            "type": "i64"
+          },
+          {
+            "name": "end_price",
+            "type": "i64"
+          },
+          {
+            "name": "placed_at",
+            "docs": [
+              "Unix timestamp when the bet was placed — used for time-lock enforcement."
+            ],
+            "type": "i64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "BetResolved",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "player",
+            "type": "pubkey"
+          },
+          {
+            "name": "won",
+            "type": "bool"
+          },
+          {
+            "name": "direction",
+            "type": "bool"
+          },
+          {
+            "name": "start_price",
+            "type": "i64"
+          },
+          {
+            "name": "end_price",
+            "type": "i64"
+          }
+        ]
+      }
+    }
+  ]
+}

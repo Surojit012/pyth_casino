@@ -1,0 +1,537 @@
+.shell {
+  position: relative;
+  overflow: visible;
+}
+
+.hero,
+.betCard,
+.footerRow {
+  position: relative;
+  z-index: 1;
+}
+
+.hero {
+  padding: 16px;
+  border-radius: 12px;
+  border: 1px solid var(--border-color);
+  background: rgba(17, 18, 23, 0.96);
+  display: grid;
+  gap: 14px;
+  margin-bottom: 12px;
+}
+
+.liveBar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+
+.liveIndicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-display);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.liveDot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--primary);
+  animation: live-blink 1.2s ease-in-out infinite;
+}
+
+.techLabels {
+  display: inline-flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.techLabels span {
+  padding: 4px 8px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text-secondary);
+  font-size: 0.64rem;
+  letter-spacing: 0.08em;
+}
+
+.priceBoard {
+  display: grid;
+  justify-items: center;
+  gap: 4px;
+  text-align: center;
+  transition: transform 220ms ease, color 220ms ease, text-shadow 220ms ease;
+}
+
+.assetLabel {
+  color: var(--text-muted);
+  font-size: 0.68rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.priceValue {
+  font-family: var(--font-display);
+  font-size: clamp(1.75rem, 4vw, 2rem);
+  line-height: 1;
+  letter-spacing: -0.02em;
+}
+
+.priceChange {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+}
+
+.priceUp .priceValue,
+.priceUp .priceChange {
+  color: var(--green);
+  text-shadow: 0 0 22px rgba(34, 197, 94, 0.2);
+}
+
+.priceDown .priceValue,
+.priceDown .priceChange {
+  color: #ef4444;
+  text-shadow: 0 0 22px rgba(239, 68, 68, 0.18);
+}
+
+.priceFlat .priceValue {
+  color: var(--text-primary);
+}
+
+.roundRow {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 12px;
+  align-items: center;
+}
+
+.previewCard {
+  padding: 12px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.04);
+  display: grid;
+  gap: 3px;
+}
+
+.previewCard span,
+.previewCard small {
+  color: var(--text-secondary);
+}
+
+.previewCard span {
+  font-size: 0.64rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.previewCard strong {
+  font-family: var(--font-display);
+  font-size: 1rem;
+  letter-spacing: -0.03em;
+}
+
+.timerCard {
+  display: flex;
+  justify-content: center;
+}
+
+.timerShell {
+  min-width: 188px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0.015)),
+    rgba(17, 18, 23, 0.96);
+  display: grid;
+  grid-template-columns: auto 78px;
+  align-items: center;
+  gap: 10px 12px;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.16);
+}
+
+.timerMeta {
+  display: grid;
+  gap: 2px;
+}
+
+.timerKicker {
+  color: var(--text-muted);
+  font-size: 0.58rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.timerMeta strong {
+  font-family: var(--font-display);
+  font-size: 0.84rem;
+  letter-spacing: -0.02em;
+}
+
+.timerRing {
+  --progress: 1;
+  width: 78px;
+  height: 78px;
+  border-radius: 50%;
+  background:
+    conic-gradient(from 180deg, var(--primary) calc(var(--progress) * 360deg), rgba(255, 255, 255, 0.07) 0deg);
+  display: grid;
+  place-items: center;
+  position: relative;
+  transition:
+    background 140ms linear,
+    transform 180ms ease,
+    box-shadow 180ms ease;
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.04),
+    0 8px 20px rgba(0, 0, 0, 0.22);
+}
+
+.timerRing::before {
+  content: '';
+  position: absolute;
+  inset: 5px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.timerInner {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at top, rgba(255, 255, 255, 0.05), transparent 58%),
+    #111217;
+  display: grid;
+  place-items: center;
+  text-align: center;
+  position: relative;
+  z-index: 1;
+}
+
+.timerInner strong {
+  display: block;
+  font-family: var(--font-display);
+  font-size: 1rem;
+  line-height: 1;
+}
+
+.timerInner span {
+  color: var(--text-secondary);
+  font-size: 0.52rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.timerReadout {
+  grid-column: 1 / 2;
+  display: grid;
+  gap: 2px;
+}
+
+.timerReadout span {
+  color: var(--text-secondary);
+  font-size: 0.6rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.timerReadout strong {
+  font-family: var(--font-mono);
+  font-size: 0.9rem;
+}
+
+.betCard {
+  padding: 16px;
+  border-radius: 12px;
+  border: 1px solid var(--border-color);
+  background: rgba(17, 18, 23, 0.96);
+  display: grid;
+  gap: 14px;
+}
+
+.stepRow {
+  display: grid;
+  gap: 10px;
+}
+
+.stepTitle {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.stepTitle span {
+  width: 22px;
+  height: 22px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: rgba(255, 59, 31, 0.12);
+  color: var(--primary);
+  font-family: var(--font-display);
+  font-size: 0.68rem;
+  font-weight: 800;
+}
+
+.stepTitle p {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.directionGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.directionBtn {
+  position: relative;
+  min-height: 48px;
+  border-radius: 10px;
+  border: 1px solid transparent;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-family: var(--font-display);
+  transition:
+    transform 180ms ease,
+    box-shadow 180ms ease,
+    border-color 180ms ease,
+    filter 180ms ease;
+}
+
+.directionBtn strong {
+  font-size: 0.88rem;
+  letter-spacing: 0.08em;
+}
+
+.upBtn {
+  background: linear-gradient(180deg, rgba(34, 197, 94, 0.18), rgba(18, 40, 26, 0.92));
+  color: #9ff0ba;
+}
+
+.downBtn {
+  background: linear-gradient(180deg, rgba(239, 68, 68, 0.18), rgba(40, 18, 18, 0.92));
+  color: #ff9a9a;
+}
+
+.directionBtn:hover {
+  transform: translateY(-1px) scale(1.02);
+  box-shadow: 0 10px 18px rgba(0, 0, 0, 0.16);
+  filter: saturate(1.02);
+}
+
+.directionActive {
+  border-color: rgba(255, 255, 255, 0.2);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+}
+
+.amountWrap {
+  display: grid;
+  gap: 8px;
+}
+
+.amountHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.amountHeader span {
+  color: var(--text-muted);
+  font-size: 0.64rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.amountHeader strong {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+}
+
+.amountInput {
+  min-height: 42px;
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--text-primary);
+  font-family: var(--font-mono);
+  font-size: 0.95rem;
+  padding: 0 12px;
+}
+
+.quickBets {
+  display: inline-flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.quickBetBtn {
+  border: 1px solid var(--border-color);
+  border-radius: 999px;
+  min-height: 30px;
+  padding: 0 10px;
+  background: var(--surface);
+  color: var(--text-secondary);
+  font-family: var(--font-display);
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  transition: transform 160ms ease, border-color 160ms ease, color 160ms ease;
+}
+
+.quickBetBtn:hover {
+  transform: translateY(-2px);
+  border-color: var(--border-strong);
+  color: var(--text-primary);
+}
+
+.quickBetActive {
+  border-color: rgba(255, 59, 31, 0.35);
+  background: rgba(255, 59, 31, 0.1);
+  color: var(--text-primary);
+}
+
+.betButton {
+  min-height: 42px;
+  border: none;
+  border-radius: 10px;
+  background: var(--primary);
+  color: white;
+  font-family: var(--font-display);
+  font-size: 0.82rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  box-shadow: 0 10px 20px rgba(255, 59, 31, 0.16);
+  transition: transform 160ms ease, box-shadow 160ms ease, opacity 160ms ease;
+}
+
+.betButton:hover:not(:disabled) {
+  transform: translateY(-1px) scale(1.02);
+  box-shadow: 0 12px 22px rgba(255, 59, 31, 0.18);
+}
+
+.betButton:disabled {
+  opacity: 0.66;
+  cursor: not-allowed;
+}
+
+.footerRow {
+  margin-top: 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.statusChip,
+.lastRound {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 10px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text-secondary);
+  font-size: 0.74rem;
+}
+
+.statusChip span {
+  line-height: 1.45;
+}
+
+.lastRound {
+  gap: 12px;
+}
+
+.lastRound span,
+.lastRound small {
+  color: var(--text-muted);
+}
+
+.lastRound strong {
+  font-family: var(--font-mono);
+  color: var(--text-primary);
+}
+
+@keyframes live-blink {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.45;
+    transform: scale(0.9);
+  }
+}
+
+@media (max-width: 900px) {
+  .roundRow {
+    grid-template-columns: 1fr;
+  }
+
+  .timerCard {
+    justify-content: flex-start;
+  }
+}
+
+@media (max-width: 700px) {
+  .hero,
+  .betCard {
+    padding: 18px;
+    border-radius: 12px;
+  }
+
+  .liveBar,
+  .amountHeader,
+  .footerRow {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .directionGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .priceValue {
+    font-size: clamp(1.6rem, 10vw, 2rem);
+  }
+
+  .timerCard {
+    justify-content: stretch;
+  }
+
+  .timerShell {
+    width: 100%;
+    min-width: 0;
+    grid-template-columns: 1fr 72px;
+  }
+
+  .timerRing {
+    width: 72px;
+    height: 72px;
+  }
+
+  .timerInner {
+    width: 56px;
+    height: 56px;
+  }
+}

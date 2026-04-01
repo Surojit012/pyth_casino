@@ -1,0 +1,559 @@
+.shell {
+  display: grid;
+  gap: 16px;
+}
+
+.hero,
+.liveSurface,
+.controlsCard,
+.statusGrid,
+.feedbackCard {
+  position: relative;
+  overflow: hidden;
+}
+
+.hero,
+.liveSurface,
+.controlsCard,
+.feedbackCard,
+.statusCard {
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  background: rgba(17, 18, 23, 0.96);
+  box-shadow: 0 12px 22px rgba(0, 0, 0, 0.16);
+}
+
+.hero,
+.liveSurface,
+.controlsCard,
+.feedbackCard {
+  padding: 16px;
+}
+
+.hero::before,
+.liveSurface::before,
+.controlsCard::before,
+.feedbackCard::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.04), transparent 44%);
+}
+
+.liveBar,
+.priceBoard,
+.heroStats,
+.chartHeader,
+.dangerMeterCard,
+.controlGroup,
+.actionRow,
+.statusGrid,
+.feedbackHeader {
+  position: relative;
+  z-index: 1;
+}
+
+.liveBar,
+.chartHeader,
+.feedbackHeader,
+.sliderHeader,
+.dangerMeterHeader,
+.dangerMetaRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.liveBar {
+  margin-bottom: 12px;
+}
+
+.liveIndicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  font-family: var(--font-display);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.liveDot {
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  background: var(--primary);
+  box-shadow: 0 0 12px rgba(255, 59, 31, 0.45);
+  animation: live-blink 1.2s ease-in-out infinite;
+}
+
+.techRow,
+.chartMeta {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.techRow span,
+.chartMeta span,
+.sectionLabel,
+.assetLabel {
+  font-family: var(--font-display);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+}
+
+.techRow span,
+.chartMeta span {
+  padding: 4px 8px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text-secondary);
+  font-size: 0.64rem;
+}
+
+.priceBoard {
+  display: grid;
+  justify-items: center;
+  gap: 4px;
+  text-align: center;
+  margin-bottom: 12px;
+}
+
+.assetLabel,
+.sectionLabel {
+  color: var(--text-muted);
+  font-size: 0.72rem;
+}
+
+.priceValue {
+  font-family: var(--font-display);
+  font-size: clamp(1.8rem, 4vw, 2.1rem);
+  line-height: 0.9;
+  letter-spacing: -0.05em;
+}
+
+.priceMeta {
+  font-family: var(--font-mono);
+  color: var(--text-secondary);
+}
+
+.priceUp .priceValue,
+.priceUp .priceMeta {
+  color: var(--green);
+  text-shadow: none;
+}
+
+.priceDown .priceValue,
+.priceDown .priceMeta {
+  color: #ef4444;
+  text-shadow: none;
+}
+
+.heroStats,
+.statusGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.statusGrid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.heroStat,
+.statusCard {
+  padding: 12px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  display: grid;
+  gap: 5px;
+  transition: transform 180ms ease, box-shadow 180ms ease;
+}
+
+.heroStat:hover,
+.statusCard:hover,
+.feedbackCard:hover,
+.liveSurface:hover,
+.controlsCard:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 18px rgba(0, 0, 0, 0.14);
+}
+
+.heroStat strong,
+.statusCard strong,
+.feedbackHeader strong,
+.sliderHeader strong {
+  font-family: var(--font-display);
+  font-size: 1rem;
+  letter-spacing: -0.03em;
+}
+
+.heroStat small,
+.feedbackCard p,
+.chartLoading,
+.dangerMetaRow,
+.sliderTicks,
+.feedbackHeader span {
+  color: var(--text-secondary);
+}
+
+.liveSurface {
+  display: grid;
+  gap: 14px;
+  transition: transform 200ms ease, box-shadow 200ms ease, border-color 200ms ease;
+}
+
+.surfaceDanger {
+  border-color: rgba(239, 68, 68, 0.42);
+  box-shadow: 0 0 0 1px rgba(239, 68, 68, 0.12), 0 12px 20px rgba(0, 0, 0, 0.16);
+  animation: danger-pulse 0.9s ease-in-out infinite;
+}
+
+.chartHeader strong,
+.feedbackHeader strong {
+  font-size: 1rem;
+}
+
+.chartShell {
+  position: relative;
+  min-height: 220px;
+  padding: 10px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.chart {
+  width: 100%;
+  height: 220px;
+  display: block;
+}
+
+.chartLoading {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+}
+
+.dangerMeterCard {
+  padding: 12px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  display: grid;
+  gap: 10px;
+}
+
+.dangerTrack {
+  height: 12px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.07);
+  overflow: hidden;
+}
+
+.dangerFill {
+  height: 100%;
+  border-radius: inherit;
+  transition: width 220ms ease;
+}
+
+.dangerSafe {
+  color: var(--green);
+}
+
+.dangerWatch {
+  color: #60a5fa;
+}
+
+.dangerHigh {
+  color: #f59e0b;
+}
+
+.dangerCritical {
+  color: #ef4444;
+}
+
+.dangerFill.dangerSafe {
+  background: linear-gradient(90deg, rgba(34, 197, 94, 0.85), rgba(34, 197, 94, 0.45));
+}
+
+.dangerFill.dangerWatch {
+  background: linear-gradient(90deg, rgba(96, 165, 250, 0.85), rgba(96, 165, 250, 0.4));
+}
+
+.dangerFill.dangerHigh {
+  background: linear-gradient(90deg, rgba(245, 158, 11, 0.9), rgba(245, 158, 11, 0.45));
+}
+
+.dangerFill.dangerCritical {
+  background: linear-gradient(90deg, rgba(239, 68, 68, 0.95), rgba(239, 68, 68, 0.5));
+}
+
+.controlsCard {
+  display: grid;
+  gap: 14px;
+}
+
+.controlGroup {
+  display: grid;
+  gap: 10px;
+}
+
+.directionGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.directionBtn,
+.presetBtn,
+.primaryBtn {
+  transition: transform 140ms ease, box-shadow 180ms ease, border-color 180ms ease, background-color 180ms ease;
+}
+
+.directionBtn {
+  min-height: 84px;
+  border-radius: 22px;
+  border: 1px solid var(--border-color);
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--text-secondary);
+  display: grid;
+  place-items: center;
+  gap: 6px;
+  cursor: pointer;
+  font-family: var(--font-display);
+  font-size: 0.9rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+}
+
+.directionBtn:hover:not(:disabled),
+.presetBtn:hover:not(:disabled),
+.primaryBtn:hover:not(:disabled) {
+  transform: scale(1.02);
+}
+
+.directionBtn:active:not(:disabled),
+.presetBtn:active:not(:disabled),
+.primaryBtn:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+.directionBtn:disabled,
+.presetBtn:disabled,
+.primaryBtn:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.directionBtnLong {
+  border-color: rgba(34, 197, 94, 0.45);
+  background: rgba(34, 197, 94, 0.12);
+  color: var(--green);
+  box-shadow: 0 0 24px rgba(34, 197, 94, 0.12);
+}
+
+.directionBtnShort {
+  border-color: rgba(239, 68, 68, 0.45);
+  background: rgba(239, 68, 68, 0.12);
+  color: #ef4444;
+  box-shadow: 0 0 24px rgba(239, 68, 68, 0.1);
+}
+
+.sliderHeader strong {
+  font-size: 1.2rem;
+}
+
+.slider {
+  width: 100%;
+  appearance: none;
+  height: 10px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  outline: none;
+}
+
+.slider::-webkit-slider-thumb {
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--primary);
+  box-shadow: 0 0 18px rgba(255, 59, 31, 0.35);
+  cursor: pointer;
+}
+
+.slider::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: none;
+  background: var(--primary);
+  box-shadow: 0 0 18px rgba(255, 59, 31, 0.35);
+  cursor: pointer;
+}
+
+.sliderTicks {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  font-family: var(--font-mono);
+  font-size: 0.76rem;
+}
+
+.sliderTickActive {
+  color: #fff;
+}
+
+.betPresets {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.presetBtn {
+  padding: 10px 18px;
+  border-radius: 16px;
+  border: 1px solid var(--border-color);
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--text-secondary);
+  font-family: var(--font-mono);
+  font-size: 0.92rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.presetBtnActive {
+  border-color: rgba(255, 59, 31, 0.5);
+  background: rgba(255, 59, 31, 0.12);
+  color: #fff;
+}
+
+.actionRow {
+  display: flex;
+}
+
+.primaryBtn {
+  position: relative;
+  isolation: isolate;
+  width: 100%;
+  min-height: 72px;
+  border: none;
+  border-radius: 22px;
+  overflow: hidden;
+}
+
+.primaryBtnHot {
+  background: linear-gradient(135deg, rgba(255, 59, 31, 1), rgba(255, 109, 47, 1));
+}
+
+.primaryBtnCashout {
+  background: linear-gradient(135deg, rgba(34, 197, 94, 1), rgba(22, 163, 74, 1));
+}
+
+.buttonGlow {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(120deg, transparent 0%, rgba(255,255,255,0.24) 45%, transparent 70%);
+  transform: translateX(-120%);
+}
+
+.primaryBtn:hover:not(:disabled) .buttonGlow {
+  animation: sheen 1.05s ease forwards;
+}
+
+.buttonText {
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  color: #fff;
+}
+
+.feedbackCard {
+  display: grid;
+  gap: 10px;
+}
+
+.feedbackWin {
+  border-color: rgba(34, 197, 94, 0.4);
+}
+
+.feedbackLoss {
+  border-color: rgba(239, 68, 68, 0.42);
+}
+
+.textGreen {
+  color: var(--green);
+}
+
+.textRed {
+  color: #ef4444;
+}
+
+@keyframes live-blink {
+  0%, 100% { opacity: 0.35; transform: scale(0.92); }
+  50% { opacity: 1; transform: scale(1); }
+}
+
+@keyframes danger-pulse {
+  0%, 100% { box-shadow: 0 0 0 1px rgba(239, 68, 68, 0.14), 0 22px 42px rgba(0, 0, 0, 0.28); }
+  50% { box-shadow: 0 0 0 1px rgba(239, 68, 68, 0.3), 0 24px 50px rgba(0, 0, 0, 0.32); }
+}
+
+@keyframes sheen {
+  0% { transform: translateX(-120%); }
+  100% { transform: translateX(120%); }
+}
+
+@media (max-width: 960px) {
+  .heroStats,
+  .statusGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 720px) {
+  .hero,
+  .liveSurface,
+  .controlsCard,
+  .feedbackCard,
+  .statusCard {
+    padding: 18px;
+    border-radius: 22px;
+  }
+
+  .liveBar,
+  .chartHeader,
+  .feedbackHeader,
+  .sliderHeader,
+  .dangerMeterHeader,
+  .dangerMetaRow {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .heroStats,
+  .statusGrid,
+  .directionGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .chart,
+  .chartShell {
+    min-height: 220px;
+    height: 220px;
+  }
+}
