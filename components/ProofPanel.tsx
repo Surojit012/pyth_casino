@@ -23,6 +23,7 @@ function formatClock(timestamp: number) {
 function getExplorerHref(signature?: string) {
   if (!signature) return null;
   const trimmed = signature.trim();
+  if (trimmed.includes('(Simulated')) return null;
   if (/^0x[a-fA-F0-9]{64}$/.test(trimmed)) {
     return `https://sepolia.basescan.org/tx/${trimmed}`;
   }
@@ -30,17 +31,54 @@ function getExplorerHref(signature?: string) {
   return `https://explorer.solana.com/tx/${trimmed}${getRequiredClientTokenEnv().explorerClusterParam}`;
 }
 
+function getVerificationRef(signature?: string) {
+  if (!signature) return null;
+  const trimmed = signature.trim();
+  if (!trimmed || trimmed.includes('(Simulated')) return null;
+  return `${trimmed.slice(0, 10)}...`;
+}
+
 export default function ProofPanel({ proof, history = [] }: ProofPanelProps) {
   const [copied, setCopied] = useState(false);
   const [showDetails, setShowDetails] = useState(false);
   const explorerHref = useMemo(() => getExplorerHref(proof?.signature), [proof?.signature]);
+  const verificationRef = useMemo(() => getVerificationRef(proof?.signature), [proof?.signature]);
 
   if (!proof) return null;
 
   const movement = getMovementPercent(proof.startPrice, proof.endPrice);
   const movementText = `${movement >= 0 ? '+' : ''}${movement.toFixed(2)}%`;
   const isWin = proof.result === 'win';
-  const verificationRef = proof.signature ? `${proof.signature.slice(0, 10)}...` : 'Pending';
+  const summaryItems = [
+    {
+      key: 'result',
+      label: 'Result',
+      content: <strong className={isWin ? styles.up : styles.down}>{proof.result.toUpperCase()}</strong>,
+    },
+    verificationRef
+      ? {
+          key: 'reference',
+          label: 'Reference',
+          content: <strong>{verificationRef}</strong>,
+        }
+      : null,
+    {
+      key: 'timestamp',
+      label: 'Timestamp',
+      content: <strong>{formatClock(proof.timestamp)}</strong>,
+    },
+    explorerHref
+      ? {
+          key: 'explorer',
+          label: 'Explorer',
+          content: (
+            <a href={explorerHref} target="_blank" rel="noreferrer" className={styles.explorerBtn}>
+              View on Explorer <ExternalLink size={14} />
+            </a>
+          ),
+        }
+      : null,
+  ].filter(Boolean) as Array<{ key: string; label: string; content: React.ReactNode }>;
 
   const copyProof = async () => {
     try {
@@ -75,28 +113,12 @@ export default function ProofPanel({ proof, history = [] }: ProofPanelProps) {
       </div>
 
       <div className={styles.summaryGrid}>
-        <div className={styles.summaryItem}>
-          <span>Result</span>
-          <strong className={isWin ? styles.up : styles.down}>{proof.result.toUpperCase()}</strong>
-        </div>
-        <div className={styles.summaryItem}>
-          <span>Reference</span>
-          <strong>{verificationRef}</strong>
-        </div>
-        <div className={styles.summaryItem}>
-          <span>Timestamp</span>
-          <strong>{formatClock(proof.timestamp)}</strong>
-        </div>
-        <div className={styles.summaryItem}>
-          <span>Explorer</span>
-          {explorerHref ? (
-            <a href={explorerHref} target="_blank" rel="noreferrer" className={styles.explorerBtn}>
-              View on Explorer <ExternalLink size={14} />
-            </a>
-          ) : (
-            <strong className={styles.muted}>Unavailable</strong>
-          )}
-        </div>
+        {summaryItems.map((item) => (
+          <div key={item.key} className={styles.summaryItem}>
+            <span>{item.label}</span>
+            {item.content}
+          </div>
+        ))}
       </div>
 
       {showDetails ? (
