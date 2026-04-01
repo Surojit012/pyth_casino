@@ -3,13 +3,12 @@ import bs58 from 'bs58';
 import { Connection, Keypair, LAMPORTS_PER_SOL, PublicKey, SystemProgram, Transaction, sendAndConfirmTransaction } from '@solana/web3.js';
 import { DatabaseConnectionError, db, normalizeDatabaseError } from '@/lib/db';
 import { getWalletFromRequest } from '@/lib/auth';
+import { getServerEnv } from '@/lib/env/server';
 import { getRequiredServerTokenEnv } from '@/lib/solanaToken';
+import { assertTrustedOrigin } from '@/lib/security';
+import { parseJsonBody, validationErrorResponse, withdrawBodySchema } from '@/lib/validation';
 
 export const runtime = 'nodejs';
-
-type WithdrawBody = {
-  amount: number;
-};
 
 export async function POST(request: Request) {
   let walletAddress: string;
@@ -22,16 +21,16 @@ export async function POST(request: Request) {
     );
   }
 
-  let body: WithdrawBody;
   try {
-    body = (await request.json()) as WithdrawBody;
-  } catch {
-    return NextResponse.json({ error: 'Invalid JSON body' }, { status: 400 });
+    assertTrustedOrigin(request);
+  } catch (error) {
+    return validationErrorResponse(error);
   }
-
-  const amount = Number(body.amount);
-  if (!Number.isFinite(amount) || amount <= 0) {
-    return NextResponse.json({ error: 'amount must be a positive number' }, { status: 400 });
+  let amount: number;
+  try {
+    ({ amount } = await parseJsonBody(request, withdrawBodySchema));
+  } catch (error) {
+    return validationErrorResponse(error);
   }
 
   const client = await db.connect().catch((error: unknown) => {
@@ -95,7 +94,7 @@ export async function POST(request: Request) {
 
   try {
     const { rpcUrl } = getRequiredServerTokenEnv();
-    const treasuryPrivateKey = process.env.TREASURY_PRIVATE_KEY;
+    const treasuryPrivateKey = getServerEnv().TREASURY_PRIVATE_KEY;
     if (!treasuryPrivateKey) {
       throw new Error('TREASURY_PRIVATE_KEY is not configured');
     }

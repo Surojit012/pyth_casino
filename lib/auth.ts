@@ -1,11 +1,12 @@
 import jwt, { type JwtPayload } from 'jsonwebtoken';
+import { getServerEnv } from '@/lib/env/server';
 
 export interface CasinoJwtPayload extends JwtPayload {
   walletAddress: string;
 }
 
 function getJwtSecret() {
-  const secret = process.env.JWT_SECRET;
+  const secret = getServerEnv().JWT_SECRET;
   if (!secret) {
     throw new Error('JWT_SECRET is not configured');
   }
@@ -37,4 +38,3 @@ export function getWalletFromRequest(request: Request): string {
   const payload = verifyCasinoJwt(token);
   return payload.walletAddress;
 }
-

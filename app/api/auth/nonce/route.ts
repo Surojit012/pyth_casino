@@ -1,24 +1,18 @@
 import { NextResponse } from 'next/server';
-import { PublicKey } from '@solana/web3.js';
 import { issueNonce } from '@/lib/nonceStore';
+import { assertTrustedOrigin } from '@/lib/security';
+import { nonceQuerySchema, parseSearchParams, validationErrorResponse } from '@/lib/validation';
 
 export const runtime = 'nodejs';
 
 export async function GET(request: Request) {
-  const { searchParams } = new URL(request.url);
-  const wallet = searchParams.get('wallet');
-
-  if (!wallet) {
-    return NextResponse.json({ error: 'wallet query param is required' }, { status: 400 });
-  }
-
   try {
-    // Validate wallet format.
-    new PublicKey(wallet);
-  } catch {
-    return NextResponse.json({ error: 'Invalid wallet address' }, { status: 400 });
+    assertTrustedOrigin(request);
+    const { searchParams } = new URL(request.url);
+    const { wallet } = parseSearchParams(searchParams, nonceQuerySchema);
+    const nonce = issueNonce(wallet);
+    return NextResponse.json({ nonce });
+  } catch (error) {
+    return validationErrorResponse(error);
   }
-
-  const nonce = issueNonce(wallet);
-  return NextResponse.json({ nonce });
 }

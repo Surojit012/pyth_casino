@@ -1,16 +1,18 @@
 import { AnchorProvider, Program, type Idl } from '@coral-xyz/anchor';
 import type { WalletContextState } from '@solana/wallet-adapter-react';
 import { Connection, PublicKey, type Transaction, type VersionedTransaction } from '@solana/web3.js';
+import { getPublicEnv } from '@/lib/env/public';
 import rouletteIdl from '@/lib/idl/pyth_roulette.json';
 import { getExplorerClusterParam, getRpcNetworkLabel } from '@/lib/solanaToken';
 
-export const RPC_ENDPOINT =
-  process.env.NEXT_PUBLIC_SOLANA_RPC_URL ?? 'https://api.devnet.solana.com';
+const publicEnv = getPublicEnv();
+
+export const RPC_ENDPOINT = publicEnv.NEXT_PUBLIC_SOLANA_RPC_URL;
 export const RPC_NETWORK = getRpcNetworkLabel(RPC_ENDPOINT);
 export const EXPLORER_CLUSTER_PARAM = getExplorerClusterParam(RPC_ENDPOINT);
 
 export const PROGRAM_ID = new PublicKey(
-  process.env.NEXT_PUBLIC_ROULETTE_PROGRAM_ID ?? '9C2rBMBfZXDpPXtMdMiKs6cGjZjHujDEoVKmie6KRLJN'
+  publicEnv.NEXT_PUBLIC_ROULETTE_PROGRAM_ID || '9C2rBMBfZXDpPXtMdMiKs6cGjZjHujDEoVKmie6KRLJN'
 );
 
 /** Single shared connection — reused by both anchor.ts and onchainRoulette.ts */

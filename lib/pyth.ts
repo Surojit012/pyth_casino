@@ -1,9 +1,5 @@
-// Pyth Hermes API wrapper
-// Uses Pyth Hermes REST API for real price data, with mock fallback
+import { buildHermesLatestUrl, buildHermesSearchUrl } from '@/lib/rpcProxy';
 
-const HERMES_BASE = 'https://hermes.pyth.network';
-
-// Pyth price feed IDs
 export const FEED_IDS: Record<string, string> = {
   BTC: '0xe62df6c8b4a85fe1a67db44dc12de5db330f7ac66b72dc658afedf0f4a415b43',
   ETH: '0xff61491a931112ddf1bd8147cd1b641375f79f5825126d665480874634fd0ace',
@@ -32,10 +28,9 @@ export interface PriceData {
   expo: number;
 }
 
-// Mock price data for fallback
 const MOCK_PRICES: Record<string, number> = {
-  BTC: 67432.50,
-  ETH: 3521.80,
+  BTC: 67432.5,
+  ETH: 3521.8,
   PYTH: 0.52,
   SOL: 142.35,
 };
@@ -48,9 +43,33 @@ function enableMockTemporarily() {
   console.warn('Pyth API failed, using mock data for 30s...');
   useMock = true;
   setTimeout(() => {
-    console.log('Retrying live Pyth API...');
     useMock = false;
   }, 30_000);
+}
+
+async function fetchPythJson<T>(url: string, body: Record<string, unknown>): Promise<T> {
+  if (typeof window === 'undefined') {
+    const response = await fetch(url, { cache: 'no-store' });
+    if (!response.ok) {
+      throw new Error(`Pyth request failed with status ${response.status}`);
+    }
+    return response.json() as Promise<T>;
+  }
+
+  const response = await fetch('/api/rpc', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    cache: 'no-store',
+    body: JSON.stringify(body),
+  });
+
+  if (!response.ok) {
+    throw new Error(`Pyth proxy request failed with status ${response.status}`);
+  }
+
+  return response.json() as Promise<T>;
 }
 
 export async function fetchPrice(asset: string): Promise<PriceData> {
@@ -62,19 +81,22 @@ export async function fetchPrice(asset: string): Promise<PriceData> {
   }
 
   try {
-    const res = await fetch(
-      `${HERMES_BASE}/v2/updates/price/latest?ids[]=${feedId}`,
-      { cache: 'no-store' }
-    );
+    const data = await fetchPythJson<{
+      parsed?: Array<{
+        price: {
+          price: string;
+          conf: string;
+          expo: number;
+          publish_time?: number;
+        };
+        publish_time?: number;
+      }>;
+    }>(buildHermesLatestUrl([feedId]), {
+      method: 'pyth.latest',
+      feedIds: [feedId],
+    });
 
-    if (!res.ok) {
-      enableMockTemporarily();
-      return getMockPrice(asset);
-    }
-
-    const data = await res.json();
     const parsed = data.parsed?.[0];
-
     if (!parsed) {
       enableMockTemporarily();
       return getMockPrice(asset);
@@ -83,16 +105,17 @@ export async function fetchPrice(asset: string): Promise<PriceData> {
     const priceData = parsed.price;
     const price = Number(priceData.price) * Math.pow(10, priceData.expo);
     const confidence = Number(priceData.conf) * Math.pow(10, priceData.expo);
+    const publishTime = priceData.publish_time ?? parsed.publish_time ?? 0;
 
     return {
       asset,
       price,
       confidence,
-      timestamp: parsed.price.publish_time * 1000,
+      timestamp: publishTime * 1000,
       expo: priceData.expo,
     };
-  } catch (err) {
-    console.warn('Pyth API error:', err);
+  } catch (error) {
+    console.warn('Pyth API error:', error);
     enableMockTemporarily();
     return getMockPrice(asset);
   }
@@ -102,23 +125,20 @@ async function getFeedId(asset: string): Promise<string | undefined> {
   if (resolvedFeedIds[asset]) return resolvedFeedIds[asset];
 
   try {
-    const res = await fetch(
-      `${HERMES_BASE}/v2/price_feeds?query=${encodeURIComponent(asset)}&asset_type=crypto`,
-      { cache: 'force-cache' }
-    );
-
-    if (!res.ok) {
-      return undefined;
-    }
-
-    const feeds = (await res.json()) as Array<{
-      id?: string;
-      attributes?: {
-        base?: string;
-        quote_currency?: string;
-        symbol?: string;
-      };
-    }>;
+    const feeds = await fetchPythJson<
+      Array<{
+        id?: string;
+        attributes?: {
+          base?: string;
+          quote_currency?: string;
+          symbol?: string;
+        };
+      }>
+    >(buildHermesSearchUrl(asset, 'crypto'), {
+      method: 'pyth.search',
+      query: asset,
+      assetType: 'crypto',
+    });
 
     const exact = feeds.find((feed) => {
       const base = String(feed.attributes?.base ?? '').toUpperCase();
@@ -131,8 +151,8 @@ async function getFeedId(asset: string): Promise<string | undefined> {
       resolvedFeedIds[asset] = exact.id;
       return exact.id;
     }
-  } catch (err) {
-    console.warn(`Failed to resolve feed id for ${asset}:`, err);
+  } catch (error) {
+    console.warn(`Failed to resolve feed id for ${asset}:`, error);
   }
 
   return undefined;
@@ -140,7 +160,6 @@ async function getFeedId(asset: string): Promise<string | undefined> {
 
 function getMockPrice(asset: string): PriceData {
   const basePrice = MOCK_PRICES[asset] || 100;
-  // Add slight random variation to simulate live price
   const variation = (Math.random() - 0.5) * basePrice * 0.002;
   const price = basePrice + variation;
 
@@ -164,6 +183,7 @@ export function formatPrice(price: number): string {
       maximumFractionDigits: 2,
     });
   }
+
   return price.toLocaleString('en-US', {
     minimumFractionDigits: 2,
     maximumFractionDigits: 4,

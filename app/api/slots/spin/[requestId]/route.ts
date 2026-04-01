@@ -5,6 +5,7 @@ import {
   ensureSlotRandomnessRequestsTable,
   getSlotRandomnessRequestForWallet,
 } from '@/lib/slotRandomnessRequests';
+import { parseRouteParam, validationErrorResponse } from '@/lib/validation';
 
 export const runtime = 'nodejs';
 
@@ -26,8 +27,10 @@ export async function GET(request: Request, context: RouteContext) {
   }
 
   const { requestId } = await context.params;
-  if (!requestId) {
-    return NextResponse.json({ error: 'Missing requestId' }, { status: 400 });
+  try {
+    parseRouteParam(requestId);
+  } catch (error) {
+    return validationErrorResponse(error);
   }
 
   try {

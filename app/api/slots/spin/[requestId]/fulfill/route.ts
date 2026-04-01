@@ -2,9 +2,11 @@ import { createHash } from 'crypto';
 import { NextResponse } from 'next/server';
 import { calculateSlotPayout } from '@/lib/entropy';
 import { db, normalizeDatabaseError } from '@/lib/db';
+import { getServerEnv } from '@/lib/env/server';
 import { ensureGameRoundsTable } from '@/lib/gameRounds';
 import { deriveSlotsOutcomeFromSeed } from '@/lib/randomness/derive';
 import { ensureSlotRandomnessRequestsTable } from '@/lib/slotRandomnessRequests';
+import { parseJsonBody, parseRouteParam, slotsFulfillBodySchema, validationErrorResponse } from '@/lib/validation';
 
 export const runtime = 'nodejs';
 
@@ -14,14 +16,9 @@ type RouteContext = {
   }>;
 };
 
-type FulfillBody = {
-  randomValue: string;
-  proofRef?: string;
-  fulfilledAt?: string;
-};
-
 function getBridgeSecret() {
-  return process.env.PYTH_ENTROPY_V2_BRIDGE_SECRET?.trim() || process.env.JWT_SECRET?.trim() || '';
+  const env = getServerEnv();
+  return env.PYTH_ENTROPY_V2_BRIDGE_SECRET?.trim() || env.JWT_SECRET?.trim() || '';
 }
 
 function verifyBridgeSecret(request: Request) {
@@ -56,15 +53,17 @@ export async function POST(request: Request, context: RouteContext) {
   }
 
   const { requestId } = await context.params;
-  if (!requestId) {
-    return NextResponse.json({ error: 'Missing requestId' }, { status: 400 });
+  try {
+    parseRouteParam(requestId);
+  } catch (error) {
+    return validationErrorResponse(error);
   }
 
-  let body: FulfillBody;
+  let body: { randomValue: string; proofRef?: string; fulfilledAt?: string };
   try {
-    body = (await request.json()) as FulfillBody;
-  } catch {
-    return NextResponse.json({ error: 'Invalid JSON body' }, { status: 400 });
+    body = await parseJsonBody(request, slotsFulfillBodySchema);
+  } catch (error) {
+    return validationErrorResponse(error);
   }
 
   let randomnessSeed: string;

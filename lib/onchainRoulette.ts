@@ -2,15 +2,18 @@ import { BN } from '@coral-xyz/anchor';
 import type { WalletContextState } from '@solana/wallet-adapter-react';
 import { Keypair, LAMPORTS_PER_SOL, PublicKey, SystemProgram } from '@solana/web3.js';
 import { getProgram, connection, EXPLORER_CLUSTER_PARAM, RPC_ENDPOINT, RPC_NETWORK } from '@/lib/anchor';
+import { getPublicEnv } from '@/lib/env/public';
 
 export type BetDirection = 'up' | 'down';
+
+const publicEnv = getPublicEnv();
 
 /**
  * Vault address that receives the bet SOL.
  * Must match what the deployed program expects.
  */
 const VAULT_PUBKEY = new PublicKey(
-  process.env.NEXT_PUBLIC_VAULT_PUBKEY ?? '11111111111111111111111111111111'
+  publicEnv.NEXT_PUBLIC_VAULT_PUBKEY || '11111111111111111111111111111111'
 );
 
 /**
@@ -18,9 +21,7 @@ const VAULT_PUBKEY = new PublicKey(
  * Keep this in env per deployed program requirements.
  */
 const PRICE_FEED_PUBKEY = new PublicKey(
-  process.env.NEXT_PUBLIC_PYTH_BTC_FEED_ACCOUNT ??
-    process.env.NEXT_PUBLIC_PRICE_FEED_ACCOUNT ??
-    'HovQMDrbAgAYPCmHVSrezcSmkMtXSSUsLDFANExrZh2J'
+  publicEnv.NEXT_PUBLIC_PYTH_BTC_FEED_ACCOUNT || 'HovQMDrbAgAYPCmHVSrezcSmkMtXSSUsLDFANExrZh2J'
 );
 
 export const ROULETTE_CONFIG = {
@@ -33,9 +34,7 @@ export const ROULETTE_CONFIG = {
 };
 
 function getProgramIdString() {
-  return (
-    process.env.NEXT_PUBLIC_ROULETTE_PROGRAM_ID ?? '9C2rBMBfZXDpPXtMdMiKs6cGjZjHujDEoVKmie6KRLJN'
-  );
+  return publicEnv.NEXT_PUBLIC_ROULETTE_PROGRAM_ID || '9C2rBMBfZXDpPXtMdMiKs6cGjZjHujDEoVKmie6KRLJN';
 }
 
 export function solToLamports(amountSol: number) {

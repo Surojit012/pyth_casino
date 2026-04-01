@@ -13,6 +13,7 @@ import {
 } from '@/lib/clientCasinoAuth';
 import { getRequiredClientTokenEnv } from '@/lib/solanaToken';
 import { isPhantomWalletName, shortenWalletAddress } from '@/lib/solanaWallet';
+import { assertBrowserDomain } from '@/lib/security';
 import PhantomWalletButton from '@/components/PhantomWalletButton';
 import styles from './TokenWallet.module.css';
 
@@ -67,6 +68,11 @@ function normalizeAuthError(message: string) {
   return message;
 }
 
+function confirmWalletAction(message: string) {
+  if (typeof window === 'undefined') return false;
+  return window.confirm(message);
+}
+
 export default function TokenWallet() {
   const { connected, publicKey, signMessage, wallet } = useSolanaWallet();
   const {
@@ -112,7 +118,8 @@ export default function TokenWallet() {
 
     authInFlightRef.current = true;
     try {
-      const nonceResponse = await fetch(`/api/auth/nonce?wallet=${walletAddress}`);
+      assertBrowserDomain();
+      const nonceResponse = await fetch(`/api/auth/nonce?wallet=${encodeURIComponent(walletAddress)}`);
       const noncePayload = await nonceResponse.json();
       if (!nonceResponse.ok || !noncePayload?.nonce) {
         throw new Error(noncePayload?.error ?? 'Failed to fetch auth nonce');
@@ -200,6 +207,24 @@ export default function TokenWallet() {
     try {
       if (unsupportedWallet) throw new Error('Wallet actions currently support Phantom only.');
       await ensureAuth();
+      const { treasuryWallet, networkLabel } = getRequiredClientTokenEnv();
+      setStatus('Preparing a transaction review before Phantom opens...');
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+      const approved = confirmWalletAction(
+        [
+          'Review this Solana deposit transaction:',
+          `Network: ${networkLabel}`,
+          `From wallet: ${shortenWalletAddress(walletAddress)}`,
+          `To treasury: ${shortenWalletAddress(treasuryWallet)}`,
+          `Amount: ${amount.toFixed(4)} SOL`,
+          `Expected effect: your in-app casino balance will increase after on-chain confirmation.`,
+          '',
+          'Do you want to continue to Phantom signing?',
+        ].join('\n')
+      );
+      if (!approved) {
+        throw new Error('Deposit cancelled before opening Phantom.');
+      }
       setStatus('Waiting for Phantom approval...');
       const result = await depositToken(amount);
       setStatus(`Deposit confirmed (${shortenSignature(result.txSignature)}).`);

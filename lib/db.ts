@@ -1,4 +1,5 @@
 import { Pool, type PoolConfig } from 'pg';
+import { getServerEnv } from '@/lib/env/server';
 
 const databaseUrl = process.env.DATABASE_URL?.trim();
 
@@ -17,19 +18,20 @@ export class DatabaseConnectionError extends Error {
 }
 
 function getRequiredDatabaseUrl() {
-  if (!databaseUrl) {
+  const envDatabaseUrl = databaseUrl || getServerEnv().DATABASE_URL;
+  if (!envDatabaseUrl) {
     throw new DatabaseConnectionError(
       'DATABASE_URL is not configured. Add your Supabase Postgres connection string to .env.local.'
     );
   }
 
-  if (databaseUrl === 'postgresql://user:password@localhost:5432/pyth_casino') {
+  if (envDatabaseUrl === 'postgresql://user:password@localhost:5432/pyth_casino') {
     throw new DatabaseConnectionError(
       'DATABASE_URL is still using the placeholder value. Replace it with your real Supabase Postgres connection string.'
     );
   }
 
-  return databaseUrl;
+  return envDatabaseUrl;
 }
 
 function createPool() {

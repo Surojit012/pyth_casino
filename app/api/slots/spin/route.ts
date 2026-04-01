@@ -12,14 +12,10 @@ import {
   createPendingSlotRandomnessRequest,
   ensureSlotRandomnessRequestsTable,
 } from '@/lib/slotRandomnessRequests';
+import { assertTrustedOrigin } from '@/lib/security';
+import { parseJsonBody, slotsSpinBodySchema, validationErrorResponse } from '@/lib/validation';
 
 export const runtime = 'nodejs';
-
-type SpinBody = {
-  amount: number;
-  volatilityMultiplier: number;
-  startPrice?: number;
-};
 
 export async function POST(request: Request) {
   let walletAddress: string;
@@ -32,27 +28,21 @@ export async function POST(request: Request) {
     );
   }
 
-  let body: SpinBody;
   try {
-    body = (await request.json()) as SpinBody;
-  } catch {
-    return NextResponse.json({ error: 'Invalid JSON body' }, { status: 400 });
+    assertTrustedOrigin(request);
+  } catch (error) {
+    return validationErrorResponse(error);
   }
-
-  const amount = Number(body.amount);
-  const volatilityMultiplier = Number(body.volatilityMultiplier);
-  const startPrice = Number(body.startPrice ?? 0);
-
-  if (!Number.isFinite(amount) || amount <= 0) {
-    return NextResponse.json({ error: 'amount must be a positive number' }, { status: 400 });
-  }
-
-  if (!Number.isFinite(volatilityMultiplier) || volatilityMultiplier <= 0) {
-    return NextResponse.json({ error: 'volatilityMultiplier must be positive' }, { status: 400 });
-  }
-
-  if (!Number.isFinite(startPrice) || startPrice < 0) {
-    return NextResponse.json({ error: 'startPrice must be a non-negative number' }, { status: 400 });
+  let amount = 0;
+  let volatilityMultiplier = 1;
+  let startPrice = 0;
+  try {
+    const body = await parseJsonBody(request, slotsSpinBodySchema);
+    amount = body.amount;
+    volatilityMultiplier = body.volatilityMultiplier;
+    startPrice = body.startPrice ?? 0;
+  } catch (error) {
+    return validationErrorResponse(error);
   }
 
   const provider = getConfiguredSlotsRandomnessProviderServer();

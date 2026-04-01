@@ -3,12 +3,10 @@ import { Connection, LAMPORTS_PER_SOL, PublicKey, type ParsedInstruction, type P
 import { DatabaseConnectionError, db, normalizeDatabaseError } from '@/lib/db';
 import { getWalletFromRequest } from '@/lib/auth';
 import { getRequiredServerTokenEnv } from '@/lib/solanaToken';
+import { assertTrustedOrigin } from '@/lib/security';
+import { depositBodySchema, parseJsonBody, validationErrorResponse } from '@/lib/validation';
 
 export const runtime = 'nodejs';
-
-type DepositBody = {
-  txSignature: string;
-};
 
 function hasWalletSigner(tx: ParsedTransactionWithMeta, walletAddress: string) {
   return tx.transaction.message.accountKeys.some((key) => {
@@ -56,16 +54,16 @@ export async function POST(request: Request) {
     );
   }
 
-  let body: DepositBody;
   try {
-    body = (await request.json()) as DepositBody;
-  } catch {
-    return NextResponse.json({ error: 'Invalid JSON body' }, { status: 400 });
+    assertTrustedOrigin(request);
+  } catch (error) {
+    return validationErrorResponse(error);
   }
-
-  const txSignature = body.txSignature?.trim();
-  if (!txSignature) {
-    return NextResponse.json({ error: 'txSignature is required' }, { status: 400 });
+  let txSignature: string;
+  try {
+    ({ txSignature } = await parseJsonBody(request, depositBodySchema));
+  } catch (error) {
+    return validationErrorResponse(error);
   }
 
   try {

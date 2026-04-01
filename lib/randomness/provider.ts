@@ -1,14 +1,16 @@
 import { RandomnessProviderNotReadyError, type SlotsRandomnessProvider } from '@/lib/randomness/types';
+import { isAddress } from 'viem';
+import { getPublicEnv } from '@/lib/env/public';
+import { getServerEnv, isEntropyEnabledForServer } from '@/lib/env/server';
 
 export function getConfiguredSlotsRandomnessProviderServer(): SlotsRandomnessProvider {
-  const configured = process.env.SLOTS_RANDOMNESS_PROVIDER?.trim().toLowerCase();
-  if (configured === 'pyth_entropy_v2') return 'pyth_entropy_v2';
+  if (isEntropyEnabledForServer()) return 'pyth_entropy_v2';
   return 'local';
 }
 
 export function getConfiguredSlotsRandomnessProviderClient(): SlotsRandomnessProvider {
-  const configured = process.env.NEXT_PUBLIC_SLOTS_RANDOMNESS_PROVIDER?.trim().toLowerCase();
-  if (configured === 'pyth_entropy_v2') return 'pyth_entropy_v2';
+  const configured = getPublicEnv().NEXT_PUBLIC_SLOTS_RANDOMNESS_PROVIDER?.trim().toLowerCase();
+  if (configured === 'pyth_entropy_v2' && process.env.NODE_ENV !== 'production') return 'pyth_entropy_v2';
   return 'local';
 }
 
@@ -18,12 +20,20 @@ export function getConfiguredSlotsRandomnessProviderLabel(provider: SlotsRandomn
 }
 
 export function assertEntropyPreparationEnv() {
-  const contractAddress = process.env.PYTH_ENTROPY_V2_CONTRACT_ADDRESS?.trim();
-  const chainId = process.env.PYTH_ENTROPY_V2_CHAIN_ID?.trim();
+  const env = getServerEnv();
+  const contractAddress = env.PYTH_ENTROPY_V2_CONTRACT_ADDRESS?.trim();
+  const chainId = env.PYTH_ENTROPY_V2_CHAIN_ID?.trim();
 
   if (!contractAddress || !chainId) {
     throw new RandomnessProviderNotReadyError(
       'Pyth Entropy v2 is selected for Slots, but the provider bridge is not configured yet.',
+      'pyth_entropy_v2'
+    );
+  }
+
+  if (!isAddress(contractAddress)) {
+    throw new RandomnessProviderNotReadyError(
+      'Pyth Entropy v2 contract address is invalid.',
       'pyth_entropy_v2'
     );
   }

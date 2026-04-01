@@ -1,12 +1,16 @@
 # Copy these environment variables to Vercel
 # Go to: Project Settings → Environment Variables → Add
 
-# Database (from Supabase)
-DATABASE_URL=postgresql://postgres.jxxkkngmyfhdjttkdtbdtttm:Surojit@2003@aws-0-us-east-1.pooler.supabase.com:6543/postgres?sslmode=require
+# Database (from Supabase or Railway Postgres)
+DATABASE_URL=postgresql://postgres.<project-ref>:<password>@<host>:6543/postgres?sslmode=require
+
+# Trusted browser origin
+NEXT_PUBLIC_APP_ORIGIN=https://your-app.vercel.app
 
 # Randomness Provider
-SLOTS_RANDOMNESS_PROVIDER=pyth_entropy_v2
-NEXT_PUBLIC_SLOTS_RANDOMNESS_PROVIDER=pyth_entropy_v2
+SLOTS_RANDOMNESS_PROVIDER=local
+NEXT_PUBLIC_SLOTS_RANDOMNESS_PROVIDER=local
+ENABLE_ENTROPY_SLOTS=false
 
 # Pyth Entropy V2 - Network Configuration
 PYTH_ENTROPY_V2_CHAIN_ID=84532
@@ -18,8 +22,7 @@ PYTH_ENTROPY_V2_CALLBACK_GAS_LIMIT=350000
 # Pyth Entropy V2 - Your Contract (REPLACE WITH YOUR DEPLOYED CONTRACT)
 PYTH_ENTROPY_V2_CONTRACT_ADDRESS=<YOUR_DEPLOYED_CONTRACT_ADDRESS>
 
-# Pyth Entropy V2 - Bridge Configuration (SAME AS RAILWAY)
-PYTH_ENTROPY_V2_BRIDGE_PRIVATE_KEY=<YOUR_BRIDGE_PRIVATE_KEY>
+# Pyth Entropy V2 - Bridge Configuration (worker service only)
 PYTH_ENTROPY_V2_BRIDGE_SECRET=<YOUR_BRIDGE_SECRET>
 
 # App URL (UPDATE AFTER FIRST DEPLOYMENT)
@@ -29,7 +32,7 @@ PYTH_CASINO_APP_URL=https://your-app.vercel.app
 NEXT_PUBLIC_SOLANA_RPC_URL=https://api.devnet.solana.com
 NEXT_PUBLIC_ROULETTE_PROGRAM_ID=9C2rBMBfZXDpPXtMdMiKs6cGjZjHujDEoVKmie6KRLJN
 
-# Treasury Wallet (SAME AS RAILWAY)
+# Treasury Wallet
 NEXT_PUBLIC_TREASURY_WALLET_ADDRESS=<YOUR_TREASURY_WALLET_ADDRESS>
 TREASURY_PRIVATE_KEY=<YOUR_TREASURY_PRIVATE_KEY>
 
@@ -48,4 +51,4 @@ NEXT_PUBLIC_TOKEN_AUTHORITY_ADDRESS=<IF_NEEDED>
 # 2. After first Vercel deployment, update PYTH_CASINO_APP_URL with your actual Vercel URL
 # 3. Also update PYTH_CASINO_APP_URL in Railway worker service to match
 # 4. Set these for: Production, Preview, and Development environments in Vercel
-# 5. The entropy address 0x41c9e39574F40Ad34c79f1C99B66A45eFB830d4c is the CORRECT official Pyth Entropy V2 contract
+# 5. Keep PYTH_ENTROPY_V2_BRIDGE_PRIVATE_KEY out of the Vercel web app unless this service is also your worker.

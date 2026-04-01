@@ -6,7 +6,9 @@ import {
   createWalletClient,
   decodeEventLog,
   defineChain,
+  getAddress,
   http,
+  isAddress,
   keccak256,
   parseAbi,
   stringToHex,
@@ -35,7 +37,9 @@ function loadEnvFile(filePath: string) {
     ) {
       value = value.slice(1, -1);
     }
-    process.env[key] = value;
+    if (!process.env[key]) {
+      process.env[key] = value;
+    }
   }
 }
 
@@ -52,13 +56,30 @@ function optionalEnv(name: string, fallback: string) {
 }
 
 const DATABASE_URL = requiredEnv('DATABASE_URL');
-const CONTRACT_ADDRESS = requiredEnv('PYTH_ENTROPY_V2_CONTRACT_ADDRESS') as `0x${string}`;
-const ENTROPY_ADDRESS = requiredEnv('PYTH_ENTROPY_V2_ENTROPY_ADDRESS') as `0x${string}`;
+const rawContractAddress = requiredEnv('PYTH_ENTROPY_V2_CONTRACT_ADDRESS');
+const rawEntropyAddress = requiredEnv('PYTH_ENTROPY_V2_ENTROPY_ADDRESS');
 const CHAIN_ID = Number(requiredEnv('PYTH_ENTROPY_V2_CHAIN_ID'));
 const RPC_URL = requiredEnv('PYTH_ENTROPY_V2_RPC_URL');
-const BRIDGE_PRIVATE_KEY = requiredEnv('PYTH_ENTROPY_V2_BRIDGE_PRIVATE_KEY') as `0x${string}`;
+const rawBridgePrivateKey = requiredEnv('PYTH_ENTROPY_V2_BRIDGE_PRIVATE_KEY');
 const BRIDGE_SECRET = requiredEnv('PYTH_ENTROPY_V2_BRIDGE_SECRET');
 const APP_URL = optionalEnv('PYTH_CASINO_APP_URL', 'http://localhost:3000').replace(/\/$/, '');
+
+if (!Number.isInteger(CHAIN_ID) || CHAIN_ID <= 0) {
+  throw new Error('PYTH_ENTROPY_V2_CHAIN_ID must be a positive integer');
+}
+if (!isAddress(rawContractAddress)) {
+  throw new Error('PYTH_ENTROPY_V2_CONTRACT_ADDRESS is invalid');
+}
+if (!isAddress(rawEntropyAddress)) {
+  throw new Error('PYTH_ENTROPY_V2_ENTROPY_ADDRESS is invalid');
+}
+if (!/^0x[0-9a-fA-F]{64}$/.test(rawBridgePrivateKey)) {
+  throw new Error('PYTH_ENTROPY_V2_BRIDGE_PRIVATE_KEY must be a 32-byte hex key');
+}
+
+const CONTRACT_ADDRESS = getAddress(rawContractAddress);
+const ENTROPY_ADDRESS = getAddress(rawEntropyAddress);
+const BRIDGE_PRIVATE_KEY = rawBridgePrivateKey as `0x${string}`;
 
 const chain = defineChain({
   id: CHAIN_ID,

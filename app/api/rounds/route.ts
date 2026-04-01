@@ -2,24 +2,10 @@ import { NextResponse } from 'next/server';
 import { db, normalizeDatabaseError } from '@/lib/db';
 import { getWalletFromRequest } from '@/lib/auth';
 import { ensureGameRoundsTable } from '@/lib/gameRounds';
+import { assertTrustedOrigin } from '@/lib/security';
+import { parseJsonBody, roundBodySchema, validationErrorResponse } from '@/lib/validation';
 
 export const runtime = 'nodejs';
-
-type RoundBody = {
-  game: 'roulette' | 'slots' | 'liquidation';
-  asset: string;
-  direction?: string;
-  betAmount: number;
-  payoutAmount: number;
-  result: 'win' | 'loss';
-  startPrice: number;
-  endPrice: number;
-  movementPercent: number;
-  volatilityLevel: string;
-  dataSource?: string;
-  proofSignature?: string;
-  metadata?: Record<string, unknown>;
-};
 
 export async function POST(request: Request) {
   let walletAddress: string;
@@ -32,27 +18,16 @@ export async function POST(request: Request) {
     );
   }
 
-  let body: RoundBody;
   try {
-    body = (await request.json()) as RoundBody;
-  } catch {
-    return NextResponse.json({ error: 'Invalid JSON body' }, { status: 400 });
+    assertTrustedOrigin(request);
+  } catch (error) {
+    return validationErrorResponse(error);
   }
-
-  if (!body.game || !body.asset || !body.result || !body.volatilityLevel) {
-    return NextResponse.json({ error: 'Missing required round fields' }, { status: 400 });
-  }
-
-  const numericFields = [
-    body.betAmount,
-    body.payoutAmount,
-    body.startPrice,
-    body.endPrice,
-    body.movementPercent,
-  ];
-
-  if (numericFields.some((value) => !Number.isFinite(Number(value)))) {
-    return NextResponse.json({ error: 'Round payload contains invalid numeric fields' }, { status: 400 });
+  let body;
+  try {
+    body = await parseJsonBody(request, roundBodySchema);
+  } catch (error) {
+    return validationErrorResponse(error);
   }
 
   try {

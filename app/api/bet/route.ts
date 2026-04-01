@@ -1,13 +1,10 @@
 import { NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { getWalletFromRequest } from '@/lib/auth';
+import { assertTrustedOrigin } from '@/lib/security';
+import { betBodySchema, parseJsonBody, validationErrorResponse } from '@/lib/validation';
 
 export const runtime = 'nodejs';
-
-type BetBody = {
-  amount: number;
-  game: string;
-};
 
 export async function POST(request: Request) {
   let walletAddress: string;
@@ -20,16 +17,16 @@ export async function POST(request: Request) {
     );
   }
 
-  let body: BetBody;
   try {
-    body = (await request.json()) as BetBody;
-  } catch {
-    return NextResponse.json({ error: 'Invalid JSON body' }, { status: 400 });
+    assertTrustedOrigin(request);
+  } catch (error) {
+    return validationErrorResponse(error);
   }
-
-  const amount = Number(body.amount);
-  if (!Number.isFinite(amount) || amount <= 0) {
-    return NextResponse.json({ error: 'amount must be a positive number' }, { status: 400 });
+  let amount: number;
+  try {
+    ({ amount } = await parseJsonBody(request, betBodySchema));
+  } catch (error) {
+    return validationErrorResponse(error);
   }
 
   const client = await db.connect();

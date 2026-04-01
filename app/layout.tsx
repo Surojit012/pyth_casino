@@ -8,6 +8,7 @@ import { LiveBetsProvider } from "@/context/LiveBetsContext";
 import Navbar from "@/components/Navbar";
 import SolanaProvider from "@/components/SolanaProvider";
 import PrivyAuthProvider from "@/components/PrivyAuthProvider";
+import { getPublicEnv } from "@/lib/env/public";
 
 export const metadata: Metadata = {
   title: "SOL Casino | Where Markets Are The House",
@@ -20,7 +21,7 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const privyAppId = process.env.NEXT_PUBLIC_PRIVY_APP_ID ?? "cl00000000000000000000000";
+  const privyAppId = getPublicEnv().NEXT_PUBLIC_PRIVY_APP_ID || "cl00000000000000000000000";
 
   return (
     <html lang="en">

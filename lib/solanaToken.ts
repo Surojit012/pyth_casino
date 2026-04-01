@@ -1,3 +1,5 @@
+import { getPublicEnv } from '@/lib/env/public';
+
 function readRequired(name: string, value?: string) {
   if (!value) {
     throw new Error(`${name} is not configured. Add it to .env.local and restart npm run dev.`);
@@ -22,10 +24,11 @@ export function getExplorerClusterParam(rpcUrl: string) {
 }
 
 export function getRequiredClientTokenEnv() {
-  const rpcUrl = readRequired('NEXT_PUBLIC_SOLANA_RPC_URL', process.env.NEXT_PUBLIC_SOLANA_RPC_URL);
+  const env = getPublicEnv();
+  const rpcUrl = readRequired('NEXT_PUBLIC_SOLANA_RPC_URL', env.NEXT_PUBLIC_SOLANA_RPC_URL);
   const treasuryWallet = readRequired(
     'NEXT_PUBLIC_TREASURY_WALLET_ADDRESS',
-    process.env.NEXT_PUBLIC_TREASURY_WALLET_ADDRESS
+    env.NEXT_PUBLIC_TREASURY_WALLET_ADDRESS
   );
 
   return {
@@ -37,10 +40,11 @@ export function getRequiredClientTokenEnv() {
 }
 
 export function getRequiredServerTokenEnv() {
-  const rpcUrl = readRequired('NEXT_PUBLIC_SOLANA_RPC_URL', process.env.NEXT_PUBLIC_SOLANA_RPC_URL);
+  const env = getPublicEnv();
+  const rpcUrl = readRequired('NEXT_PUBLIC_SOLANA_RPC_URL', env.NEXT_PUBLIC_SOLANA_RPC_URL);
   const treasuryWallet = readRequired(
     'NEXT_PUBLIC_TREASURY_WALLET_ADDRESS',
-    process.env.NEXT_PUBLIC_TREASURY_WALLET_ADDRESS
+    env.NEXT_PUBLIC_TREASURY_WALLET_ADDRESS
   );
 
   return {

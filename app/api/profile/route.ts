@@ -3,18 +3,16 @@ import { getWalletFromRequest } from '@/lib/auth';
 import { db, normalizeDatabaseError } from '@/lib/db';
 import { buildDefaultDisplayName } from '@/lib/profile';
 import { ensureUserProfileColumns } from '@/lib/profileDb';
+import { assertTrustedOrigin } from '@/lib/security';
+import {
+  parseJsonBody,
+  profileUpdateSchema,
+  sanitizeBio,
+  sanitizeDisplayName,
+  validationErrorResponse,
+} from '@/lib/validation';
 
 export const runtime = 'nodejs';
-
-function sanitizeDisplayName(value: unknown) {
-  const name = String(value ?? '').trim().replace(/\s+/g, ' ');
-  if (!name) return '';
-  return name.slice(0, 48);
-}
-
-function sanitizeBio(value: unknown) {
-  return String(value ?? '').trim().slice(0, 180);
-}
 
 function sanitizeAvatarUrl(value: unknown) {
   const avatar = String(value ?? '').trim();
@@ -164,15 +162,20 @@ export async function PUT(request: Request) {
     );
   }
 
+  try {
+    assertTrustedOrigin(request);
+  } catch (error) {
+    return validationErrorResponse(error);
+  }
   let body: { displayName?: string; bio?: string; avatarUrl?: string };
   try {
-    body = (await request.json()) as { displayName?: string; bio?: string; avatarUrl?: string };
-  } catch {
-    return NextResponse.json({ error: 'Invalid JSON body' }, { status: 400 });
+    body = await parseJsonBody(request, profileUpdateSchema);
+  } catch (error) {
+    return validationErrorResponse(error);
   }
 
-  const displayName = sanitizeDisplayName(body.displayName);
-  const bio = sanitizeBio(body.bio);
+  const displayName = sanitizeDisplayName(body.displayName ?? '');
+  const bio = sanitizeBio(body.bio ?? '');
   let avatarUrl = '';
   try {
     avatarUrl = sanitizeAvatarUrl(body.avatarUrl);

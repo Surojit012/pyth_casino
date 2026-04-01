@@ -3,7 +3,7 @@
 Pyth Casino is a Next.js app where casino-style game outcomes are driven by live market behavior anchored to Pyth Hermes data.
 
 It includes:
-- Real-time market micro-stream (`BTC`, `ETH`, `SOL`) with smooth client interpolation.
+- Real-time market micro-stream (`BTC`, `ETH`, `PYTH`, `SOL`) with smooth client interpolation.
 - Volatility-driven gameplay logic across all games.
 - Proof of Outcome system that records verifiable round metadata.
 - Privy authentication + embedded wallet identity.
@@ -11,6 +11,8 @@ It includes:
 - Wallet-linked persistent round history for roulette, slots, and liquidation.
 - Lightweight Web Audio cues and high-visibility result overlays.
 - Provider-based Slots randomness architecture with a local provider active today and Base Sepolia Entropy-ready scaffolding for later.
+- Server-side Pyth RPC proxy for app-owned market reads.
+- Zod-validated API inputs and origin checks for wallet auth and mutations.
 
 ## Live Features
 - **Price Roulette**: bet up/down over a timed round with volatility-adjusted payout.
@@ -39,6 +41,7 @@ npm install
 cp .env.example .env.local
 ```
 Then set:
+- `NEXT_PUBLIC_APP_ORIGIN`
 - `NEXT_PUBLIC_PRIVY_APP_ID`
 - `DATABASE_URL`
 - `NEXT_PUBLIC_TREASURY_WALLET_ADDRESS`
@@ -69,6 +72,7 @@ npm run dev
 - `npm run lint`: run ESLint
 - `npm run build`: production build validation
 - `npm run start`: run production server
+- `npm run security:check-html`: fail if unsafe HTML rendering APIs appear
 - `npm run entropy-bridge-worker`: watch Entropy requests, submit consumer calls, and settle fulfilled slot spins
 
 ## Project Structure
@@ -90,7 +94,5 @@ lib/                 Core logic (Pyth API, volatility, entropy, proof, sound)
 - Phantom deposits and withdrawals use native SOL, while game betting still runs against the app's persisted casino ledger.
 - If Hermes is unavailable, the app falls back to mock prices to keep gameplay functional.
 - Runtime wallet balances now require a real Postgres database; the app no longer silently uses an in-memory fallback.
-- Slots randomness now resolves through a provider layer. `local` is active today; `pyth_entropy_v2` is scaffolded for Base Sepolia and should stay disabled until a fresh Base consumer contract is deployed.
+- Slots randomness now resolves through a provider layer. `local` is the secure default; `pyth_entropy_v2` is feature-gated for Base Sepolia and should stay disabled until the bridge is production-ready.
 - The Entropy bridge worker lives in `scripts/entropy-bridge-worker.ts` and expects a deployed EVM consumer contract plus the bridge env values above.
-# pyth_casino
-# pyth_casino
