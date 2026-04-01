@@ -1,5 +1,0 @@
-[phases.setup]
-aptPkgs = ["python3", "build-essential", "libusb-1.0-0-dev"]
-
-[phases.install]
-cmds = ["npm install --no-audit"]
