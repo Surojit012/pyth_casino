@@ -16,8 +16,8 @@ import { privateKeyToAccount } from 'viem/accounts';
 const ROOT = process.cwd();
 const ENV_PATH = path.join(ROOT, '.env.local');
 const STATE_PATH = path.join(ROOT, 'scripts', '.entropy-bridge-state.json');
-const LOOP_INTERVAL_MS = 8_000;
-const LOG_BACKFILL_BLOCKS = BigInt(250);
+const LOOP_INTERVAL_MS = 3_000; // Poll every 3 seconds for faster response
+const LOG_BACKFILL_BLOCKS = BigInt(50); // Reduced from 250 to scan fewer old blocks
 
 function loadEnvFile(filePath: string) {
   if (!fs.existsSync(filePath)) return;
@@ -203,6 +203,9 @@ function buildCommitment(requestId: string) {
 }
 
 async function submitPendingRequest(request: PendingRequestRow) {
+  const startTime = Date.now();
+  console.log(`[bridge] submitting ${request.request_id}...`);
+  
   // Read the entropy address from the on-chain consumer for diagnostics
   const onChainEntropyAddress = await publicClient.readContract({
     address: CONTRACT_ADDRESS,
@@ -271,7 +274,8 @@ async function submitPendingRequest(request: PendingRequestRow) {
     commitment,
   });
 
-  console.log(`[bridge] submitted ${request.request_id} -> sequence ${sequenceNumber} tx ${hash}`);
+  const elapsed = Date.now() - startTime;
+  console.log(`[bridge] submitted ${request.request_id} -> sequence ${sequenceNumber} tx ${hash} (${elapsed}ms)`);
 }
 
 async function submitNewPendingRequests() {
@@ -327,7 +331,7 @@ async function processFulfillments() {
     return;
   }
 
-  const maxRange = BigInt(250);
+  const maxRange = BigInt(100); // Reduced from 250 for faster scanning
   while (fromBlock <= latestBlock) {
     const toBlock = fromBlock + maxRange > latestBlock ? latestBlock : fromBlock + maxRange;
     const consumerLogs = await publicClient.getLogs({
@@ -376,8 +380,10 @@ async function processFulfillments() {
       }
 
       try {
+        const fulfillStart = Date.now();
         await callFulfillEndpoint(requestId, randomValue, proofRef);
-        console.log(`[bridge] fulfilled ${requestId} from entropy reveal sequence ${sequenceNumber}`);
+        const fulfillElapsed = Date.now() - fulfillStart;
+        console.log(`[bridge] fulfilled ${requestId} from entropy reveal sequence ${sequenceNumber} (${fulfillElapsed}ms)`);
       } catch (error) {
         const message = error instanceof Error ? error.message : 'unknown error';
         await setRequestMetadata(requestId, {
@@ -413,8 +419,10 @@ async function processFulfillments() {
       const proofRef = `${log.transactionHash}:${sequenceNumber}`;
 
       try {
+        const fulfillStart = Date.now();
         await callFulfillEndpoint(requestId, randomValue, proofRef);
-        console.log(`[bridge] fulfilled ${requestId} from consumer event sequence ${sequenceNumber}`);
+        const fulfillElapsed = Date.now() - fulfillStart;
+        console.log(`[bridge] fulfilled ${requestId} from consumer event sequence ${sequenceNumber} (${fulfillElapsed}ms)`);
       } catch (error) {
         const message = error instanceof Error ? error.message : 'unknown error';
         await setRequestMetadata(requestId, {
