@@ -93,3 +93,4 @@ lib/                 Core logic (Pyth API, volatility, entropy, proof, sound)
 - Slots randomness now resolves through a provider layer. `local` is active today; `pyth_entropy_v2` is scaffolded for Base Sepolia and should stay disabled until a fresh Base consumer contract is deployed.
 - The Entropy bridge worker lives in `scripts/entropy-bridge-worker.ts` and expects a deployed EVM consumer contract plus the bridge env values above.
 # pyth_casino
+# pyth_casino

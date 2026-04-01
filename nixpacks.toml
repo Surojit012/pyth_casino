@@ -1,2 +1,0 @@
-[install]
-cmds = ["npm install --no-audit"]
