@@ -67,11 +67,18 @@ function normalizeDatabaseError(error: unknown) {
   return new DatabaseConnectionError(`Database connection failed: ${message}`, { cause: error });
 }
 
-let pool: Pool;
+let pool: Pool | undefined;
 
-if (global.__pythCasinoDbPool) {
-  pool = global.__pythCasinoDbPool;
-} else {
+function getPool(): Pool {
+  if (pool) {
+    return pool;
+  }
+
+  if (global.__pythCasinoDbPool) {
+    pool = global.__pythCasinoDbPool;
+    return pool;
+  }
+
   try {
     pool = createPool();
   } catch (error) {
@@ -85,7 +92,15 @@ if (global.__pythCasinoDbPool) {
   if (process.env.NODE_ENV !== 'production') {
     global.__pythCasinoDbPool = pool;
   }
+
+  return pool;
 }
 
 export { normalizeDatabaseError };
-export const db = pool;
+export const db = new Proxy({} as Pool, {
+  get(_target, prop) {
+    const actualPool = getPool();
+    const value = actualPool[prop as keyof Pool];
+    return typeof value === 'function' ? value.bind(actualPool) : value;
+  }
+});
