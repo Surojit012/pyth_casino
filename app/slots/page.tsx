@@ -24,7 +24,8 @@ type ReelStrip = string[];
 const BET_PRESETS = [0.01, 0.05, 0.1, 0.25];
 const SUPPORTED_ASSETS = ['SOL', 'ETH', 'BTC', 'PYTH'] as const;
 type SupportedAsset = typeof SUPPORTED_ASSETS[number];
-const MAX_PENDING_SPIN_MS = 90_000;
+const SOFT_PENDING_WARNING_MS = 90_000;
+const MAX_PENDING_SPIN_MS = 12 * 60_000;
 
 const REEL_STOP_TIMINGS = {
   LOW: [1150, 1750, 2350],
@@ -673,11 +674,18 @@ export default function SlotsPage() {
               <span className={styles.ribbonLabel}>Pending Randomness</span>
               <strong>Awaiting {pendingSpin.providerLabel}</strong>
               <small>
-                {pendingSpin.message ??
-                  `Request ${pendingSpin.requestId.slice(0, 12)}... • ${Math.max(
+                {(() => {
+                  const elapsedSeconds = Math.max(
                     1,
                     Math.floor((Date.now() - pendingSpin.createdAt) / 1000)
-                  )}s`}
+                  );
+                  const elapsedMinutes = (elapsedSeconds / 60).toFixed(1);
+                  if (pendingSpin.message) return pendingSpin.message;
+                  if (elapsedSeconds >= SOFT_PENDING_WARNING_MS / 1000) {
+                    return `Request ${pendingSpin.requestId.slice(0, 12)}... • ${elapsedMinutes}m elapsed. This is slower than usual, but the bridge is still polling.`;
+                  }
+                  return `Request ${pendingSpin.requestId.slice(0, 12)}... • ${elapsedSeconds}s`;
+                })()}
               </small>
             </>
           ) : spinError ? (

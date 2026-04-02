@@ -196,10 +196,34 @@ async function getPendingRequestsWithoutSequence() {
      WHERE provider = 'pyth_entropy_v2'
        AND status = 'pending'
        AND COALESCE(metadata->>'sequenceNumber', '') = ''
-     ORDER BY created_at ASC
+     ORDER BY created_at DESC
      LIMIT 25`
   );
   return result.rows;
+}
+
+async function failExpiredPendingRequests() {
+  const result = await db.query<{ request_id: string }>(
+    `UPDATE slot_randomness_requests
+     SET status = 'failed',
+         error_message = 'Entropy request expired before fulfillment.',
+         metadata = COALESCE(metadata, '{}'::jsonb) || $1::jsonb,
+         updated_at = NOW()
+     WHERE provider = 'pyth_entropy_v2'
+       AND status = 'pending'
+       AND created_at < NOW() - INTERVAL '20 minutes'
+     RETURNING request_id`,
+    [
+      JSON.stringify({
+        expiredByWorker: true,
+        expiredAt: new Date().toISOString(),
+      }),
+    ]
+  );
+
+  if (result.rowCount && result.rowCount > 0) {
+    console.warn(`[bridge] expired ${result.rowCount} stale pending request(s) older than 20 minutes`);
+  }
 }
 
 async function setRequestMetadata(requestId: string, patch: Record<string, unknown>) {
@@ -498,6 +522,7 @@ async function processFulfillments() {
 }
 
 async function runCycle() {
+  await failExpiredPendingRequests();
   await submitNewPendingRequests();
   await processFulfillments();
 }
