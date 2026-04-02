@@ -36,6 +36,7 @@ export const txSignatureSchema = z
 export const gameSchema = z.enum(['roulette', 'slots', 'liquidation']);
 export const resultSchema = z.enum(['win', 'loss']);
 export const slotsProviderSchema = z.enum(['local', 'pyth_entropy_v2']);
+export const slotsAssetSchema = z.enum(['SOL', 'ETH', 'BTC', 'PYTH']);
 
 export const depositBodySchema = z.object({
   txSignature: txSignatureSchema,
@@ -102,6 +103,7 @@ export const slotsSpinBodySchema = z.object({
   amount: positiveAmount.max(10_000),
   volatilityMultiplier: z.coerce.number().finite().positive().max(10),
   startPrice: nonNegativeNumber.max(10_000_000).optional().default(0),
+  asset: slotsAssetSchema.default('SOL'),
 });
 
 export const slotsFulfillBodySchema = z.object({

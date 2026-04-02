@@ -131,7 +131,7 @@ function getWinningIndexes(symbols: [string, string, string]) {
 
 export default function SlotsPage() {
   const { balance, refreshSolanaTokenBalance } = useWallet();
-  const { current: solMarket, sourceLabel } = useMarketData('SOL');
+  const { assets, sourceLabel } = useMarketData();
   const { unlockAudio, playCue } = useSound();
   const { latestProof, proofHistory, recordProof } = useGameProof('slots');
 
@@ -161,17 +161,18 @@ export default function SlotsPage() {
   });
 
   const spinTimeouts = useRef<NodeJS.Timeout[]>([]);
-  const latestSolPriceRef = useRef(solMarket?.price ?? 0);
+  const latestAssetPriceRef = useRef(0);
   const roundStartPriceRef = useRef(0);
   const roundSeedRef = useRef<string | undefined>(undefined);
   const lastSpinTimeRef = useRef(0);
   const roundOutcomeRef = useRef<[string, string, string]>(['slot', 'slot', 'slot']);
   const roundResultRef = useRef({ payout: 0, multiplier: 0, isWin: false, matchType: '' });
 
-  const volatilityLevel = solMarket?.volatilityLevel ?? 'LOW';
+  const market = assets[selectedAsset];
+  const volatilityLevel = market?.volatilityLevel ?? 'LOW';
   const volatility = getSlotsVolatilityMultiplier(volatilityLevel);
-  const marketMood = solMarket?.mood ?? 'Market Calm';
-  const currentPrice = solMarket?.price ?? latestSolPriceRef.current ?? 0;
+  const marketMood = market?.mood ?? 'Market Calm';
+  const currentPrice = market?.price ?? latestAssetPriceRef.current ?? 0;
   const spinTimings = REEL_STOP_TIMINGS[volatilityLevel];
   const winningIndexes = useMemo(() => (result ? getWinningIndexes(result.symbols) : []), [result]);
   const configuredProvider = getConfiguredSlotsRandomnessProviderClient();
@@ -201,7 +202,7 @@ export default function SlotsPage() {
     volatilityLevelOverride?: typeof volatilityLevel;
     sourceOverride?: string;
   }) => {
-    const endPrice = latestSolPriceRef.current || solMarket?.price || roundStartPriceRef.current;
+    const endPrice = latestAssetPriceRef.current || market?.price || roundStartPriceRef.current;
     const startPrice = roundStartPriceRef.current || endPrice;
     const roundVolatilityLevel = input.volatilityLevelOverride ?? volatilityLevel;
 
@@ -224,7 +225,7 @@ export default function SlotsPage() {
     void refreshSolanaTokenBalance();
 
     const proof = recordProof({
-      asset: 'SOL',
+      asset: selectedAsset,
       startPrice,
       endPrice,
       volatilityLevel: roundVolatilityLevel,
@@ -240,7 +241,7 @@ export default function SlotsPage() {
     if (input.provider === 'local') {
       void persistGameRound({
         game: 'slots',
-        asset: 'SOL',
+        asset: selectedAsset,
         betAmount,
         payoutAmount: input.payout,
         result: input.isWin ? 'win' : 'loss',
@@ -284,7 +285,7 @@ export default function SlotsPage() {
         icon: <Frown size={64} />,
       });
     }
-  }, [betAmount, marketMood, playCue, recordProof, refreshSolanaTokenBalance, solMarket?.price, sourceLabel, volatilityLevel]);
+  }, [betAmount, market?.price, marketMood, playCue, recordProof, refreshSolanaTokenBalance, selectedAsset, sourceLabel, volatilityLevel]);
 
   const clearAllTimers = useCallback(() => {
     spinTimeouts.current.forEach(timeout => clearTimeout(timeout));
@@ -292,8 +293,8 @@ export default function SlotsPage() {
   }, []);
 
   useEffect(() => {
-    latestSolPriceRef.current = solMarket?.price ?? latestSolPriceRef.current;
-  }, [solMarket?.price]);
+    latestAssetPriceRef.current = market?.price ?? latestAssetPriceRef.current;
+  }, [market?.price]);
 
   const spin = useCallback(async () => {
     const now = Date.now();
@@ -308,7 +309,7 @@ export default function SlotsPage() {
     setSpinningReels([true, true, true]);
     setOverlay(prev => ({ ...prev, open: false }));
 
-    roundStartPriceRef.current = latestSolPriceRef.current || solMarket?.price || currentPrice || 0;
+    roundStartPriceRef.current = latestAssetPriceRef.current || market?.price || currentPrice || 0;
     roundSeedRef.current = undefined;
     const roundVolatilityLevel = volatilityLevel;
     const currentBetAmount = betAmount;
@@ -354,6 +355,7 @@ export default function SlotsPage() {
           amount: currentBetAmount,
           volatilityMultiplier: currentVolatility,
           startPrice: roundStartPriceRef.current,
+          asset: selectedAsset,
         }),
       });
       const payload = await response.json();
@@ -446,8 +448,9 @@ export default function SlotsPage() {
     clearAllTimers,
     currentPrice,
     finalizeSpinResult,
+    market?.price,
     playCue,
-    solMarket?.price,
+    selectedAsset,
     spinTimings,
     volatility,
     volatilityLevel,
@@ -471,6 +474,7 @@ export default function SlotsPage() {
     const poll = async () => {
       try {
         const response = await fetch(`/api/slots/spin/${pendingSpin.requestId}`, {
+          cache: 'no-store',
           headers: {
             Authorization: `Bearer ${jwt}`,
           },
@@ -598,12 +602,12 @@ export default function SlotsPage() {
           </div>
         </div>
 
-        <div className={`${styles.priceBoard} ${solMarket?.direction === 'up' ? styles.priceUp : solMarket?.direction === 'down' ? styles.priceDown : styles.priceFlat}`}>
-          <span className={styles.assetLabel}>SOL / USD</span>
+        <div className={`${styles.priceBoard} ${market?.direction === 'up' ? styles.priceUp : market?.direction === 'down' ? styles.priceDown : styles.priceFlat}`}>
+          <span className={styles.assetLabel}>{selectedAsset} / USD</span>
           <strong className={styles.priceValue}>${formatPrice(currentPrice)}</strong>
           <span className={styles.priceChange}>
-            {solMarket?.change15s && solMarket.change15s > 0 ? '+' : ''}
-            {solMarket?.change15s?.toFixed(2) ?? '0.00'}% • {previewMultiplier}
+            {market?.change15s && market.change15s > 0 ? '+' : ''}
+            {market?.change15s?.toFixed(2) ?? '0.00'}% • {previewMultiplier}
           </span>
         </div>
 
@@ -620,7 +624,7 @@ export default function SlotsPage() {
           </div>
           <div className={styles.previewCard}>
             <span>Bet</span>
-            <strong>{betAmount.toFixed(2)} {selectedAsset}</strong>
+            <strong>{betAmount.toFixed(2)} SOL</strong>
             <small>Ready to spin</small>
           </div>
         </div>
@@ -719,8 +723,7 @@ export default function SlotsPage() {
                     playCue('click');
                     setSelectedAsset(asset);
                   }}
-                  disabled={gameState === 'spinning' || asset !== 'SOL'}
-                  title={asset !== 'SOL' ? 'Coming soon' : undefined}
+                  disabled={gameState === 'spinning' || gameState === 'pending'}
                 >
                   {asset}
                 </button>
@@ -742,7 +745,7 @@ export default function SlotsPage() {
                   }}
                   disabled={gameState === 'spinning'}
                 >
-                  {preset.toFixed(2)} {selectedAsset}
+                  {preset.toFixed(2)} SOL
                 </button>
               ))}
             </div>
@@ -750,7 +753,7 @@ export default function SlotsPage() {
 
           <div className={styles.payoutPreview}>
             <span className={styles.controlLabel}>Potential line</span>
-            <strong>{(betAmount * volatility).toFixed(4)} to {(betAmount * 50 * volatility).toFixed(4)} {selectedAsset}</strong>
+            <strong>{(betAmount * volatility).toFixed(4)} to {(betAmount * 50 * volatility).toFixed(4)} SOL</strong>
             <small>Any pair to top triple, volatility included</small>
           </div>
         </div>

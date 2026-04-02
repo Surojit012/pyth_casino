@@ -37,11 +37,13 @@ export async function POST(request: Request) {
   let amount = 0;
   let volatilityMultiplier = 1;
   let startPrice = 0;
+  let asset = 'SOL';
   try {
     const body = await parseJsonBody(request, slotsSpinBodySchema);
     amount = body.amount;
     volatilityMultiplier = body.volatilityMultiplier;
     startPrice = body.startPrice ?? 0;
+    asset = body.asset ?? 'SOL';
   } catch (error) {
     return validationErrorResponse(error);
   }
@@ -102,7 +104,7 @@ export async function POST(request: Request) {
         provider,
         betAmount: amount,
         volatilityMultiplier,
-        asset: 'SOL',
+        asset,
         startPrice,
         dataSource: 'Pyth Entropy v2 bridge',
         metadata: {
@@ -210,6 +212,7 @@ export async function POST(request: Request) {
       success: true,
       status: 'resolved',
       newBalance: Number(updatedBalanceResult.rows[0]?.balance ?? 0),
+      asset,
       ...spin,
     });
   } catch (error) {
