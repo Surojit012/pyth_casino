@@ -167,6 +167,27 @@ export async function createPendingSlotRandomnessRequest(
   };
 }
 
+export async function failSupersededPendingSlotRandomnessRequests(walletAddress: string, provider: string) {
+  await db.query(
+    `UPDATE slot_randomness_requests
+     SET status = 'failed',
+         error_message = 'Superseded by a newer randomness request.',
+         metadata = COALESCE(metadata, '{}'::jsonb) || $3::jsonb,
+         updated_at = NOW()
+     WHERE wallet_address = $1
+       AND provider = $2
+       AND status = 'pending'`,
+    [
+      walletAddress,
+      provider,
+      JSON.stringify({
+        superseded: true,
+        supersededAt: new Date().toISOString(),
+      }),
+    ]
+  );
+}
+
 export async function getSlotRandomnessRequestForWallet(requestId: string, walletAddress: string) {
   const result = await db.query(
     `SELECT *

@@ -115,6 +115,7 @@ const entropyAbi = parseAbi([
 
 type WorkerState = {
   lastProcessedBlock: string;
+  processedFulfillmentKeys?: string[];
 };
 
 type PendingRequestRow = {
@@ -133,6 +134,23 @@ function readState(): WorkerState | null {
 
 function writeState(state: WorkerState) {
   fs.writeFileSync(STATE_PATH, JSON.stringify(state, null, 2));
+}
+
+function getFulfillmentKey(transactionHash: string | null | undefined, sequenceNumber: string, source: string) {
+  return `${source}:${transactionHash ?? 'nohash'}:${sequenceNumber}`;
+}
+
+function hasProcessedFulfillment(state: WorkerState | null, key: string) {
+  return Boolean(state?.processedFulfillmentKeys?.includes(key));
+}
+
+function rememberProcessedFulfillment(state: WorkerState | null, key: string, lastProcessedBlock: string) {
+  const existing = state?.processedFulfillmentKeys ?? [];
+  const nextKeys = [...existing.filter((entry) => entry !== key), key].slice(-500);
+  writeState({
+    lastProcessedBlock,
+    processedFulfillmentKeys: nextKeys,
+  });
 }
 
 function normalizeConnectionString(connectionString: string) {
@@ -339,7 +357,7 @@ async function callFulfillEndpoint(requestId: string, randomValue: string, proof
 
 async function processFulfillments() {
   const latestBlock = await publicClient.getBlockNumber();
-  const state = readState();
+  let state = readState();
   let fromBlock = state?.lastProcessedBlock
     ? BigInt(state.lastProcessedBlock) > LOG_BACKFILL_BLOCKS
       ? BigInt(state.lastProcessedBlock) - LOG_BACKFILL_BLOCKS
@@ -382,8 +400,14 @@ async function processFulfillments() {
       if (String(decoded.args.caller).toLowerCase() !== CONTRACT_ADDRESS.toLowerCase()) continue;
 
       const sequenceNumber = String(decoded.args.sequenceNumber);
+      const fulfillmentKey = getFulfillmentKey(log.transactionHash, sequenceNumber, 'entropy-reveal');
+      if (hasProcessedFulfillment(state, fulfillmentKey)) continue;
       const requestId = await findPendingRequestIdBySequence(sequenceNumber);
-      if (!requestId) continue;
+      if (!requestId) {
+        rememberProcessedFulfillment(state, fulfillmentKey, toBlock.toString());
+        state = readState();
+        continue;
+      }
 
       const callbackFailed = Boolean(decoded.args.callbackFailed);
       const randomValue = String(decoded.args.randomNumber);
@@ -397,6 +421,8 @@ async function processFulfillments() {
           callbackFailed: true,
         });
         console.error(`[bridge] entropy callback failed for ${requestId} sequence ${sequenceNumber}`);
+        rememberProcessedFulfillment(state, fulfillmentKey, toBlock.toString());
+        state = readState();
         continue;
       }
 
@@ -405,6 +431,8 @@ async function processFulfillments() {
         await callFulfillEndpoint(requestId, randomValue, proofRef);
         const fulfillElapsed = Date.now() - fulfillStart;
         console.log(`[bridge] fulfilled ${requestId} from entropy reveal sequence ${sequenceNumber} (${fulfillElapsed}ms)`);
+        rememberProcessedFulfillment(state, fulfillmentKey, toBlock.toString());
+        state = readState();
       } catch (error) {
         const message = error instanceof Error ? error.message : 'unknown error';
         await setRequestMetadata(requestId, {
@@ -431,9 +459,13 @@ async function processFulfillments() {
 
       const sequenceNumber = String(decoded.args.sequenceNumber);
       const randomValue = String(decoded.args.randomNumber);
+      const fulfillmentKey = getFulfillmentKey(log.transactionHash, sequenceNumber, 'consumer-fulfilled');
+      if (hasProcessedFulfillment(state, fulfillmentKey)) continue;
       const requestId = await findPendingRequestIdBySequence(sequenceNumber);
       if (!requestId) {
         console.log(`[bridge] fulfillment for sequence ${sequenceNumber} has no pending request mapping`);
+        rememberProcessedFulfillment(state, fulfillmentKey, toBlock.toString());
+        state = readState();
         continue;
       }
 
@@ -444,6 +476,8 @@ async function processFulfillments() {
         await callFulfillEndpoint(requestId, randomValue, proofRef);
         const fulfillElapsed = Date.now() - fulfillStart;
         console.log(`[bridge] fulfilled ${requestId} from consumer event sequence ${sequenceNumber} (${fulfillElapsed}ms)`);
+        rememberProcessedFulfillment(state, fulfillmentKey, toBlock.toString());
+        state = readState();
       } catch (error) {
         const message = error instanceof Error ? error.message : 'unknown error';
         await setRequestMetadata(requestId, {
@@ -454,7 +488,11 @@ async function processFulfillments() {
       }
     }
 
-    writeState({ lastProcessedBlock: toBlock.toString() });
+    writeState({
+      lastProcessedBlock: toBlock.toString(),
+      processedFulfillmentKeys: state?.processedFulfillmentKeys ?? [],
+    });
+    state = readState();
     fromBlock = toBlock + BigInt(1);
   }
 }

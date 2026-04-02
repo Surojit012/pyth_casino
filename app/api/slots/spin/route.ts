@@ -11,6 +11,7 @@ import { RandomnessProviderNotReadyError } from '@/lib/randomness/types';
 import {
   createPendingSlotRandomnessRequest,
   ensureSlotRandomnessRequestsTable,
+  failSupersededPendingSlotRandomnessRequests,
 } from '@/lib/slotRandomnessRequests';
 import { assertTrustedOrigin } from '@/lib/security';
 import { parseJsonBody, slotsSpinBodySchema, validationErrorResponse } from '@/lib/validation';
@@ -92,6 +93,8 @@ export async function POST(request: Request) {
       if (currentBalance < amount) {
         return NextResponse.json({ error: 'Insufficient balance' }, { status: 400 });
       }
+
+      await failSupersededPendingSlotRandomnessRequests(walletAddress, provider);
 
       const pendingRequest = await createPendingSlotRandomnessRequest({
         userId: String(user.id),
