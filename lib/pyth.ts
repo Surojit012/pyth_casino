@@ -35,21 +35,12 @@ const MOCK_PRICES: Record<string, number> = {
   SOL: 142.35,
 };
 
-let useMock = false;
 const resolvedFeedIds: Record<string, string> = { ...FEED_IDS };
+const lastKnownPrices = new Map<string, PriceData>();
 
 function normalizeFeedId(feedId: string) {
   const trimmed = feedId.trim();
   return trimmed.startsWith('0x') ? trimmed : `0x${trimmed}`;
-}
-
-function enableMockTemporarily() {
-  if (useMock) return;
-  console.warn('Pyth API failed, using mock data for 30s...');
-  useMock = true;
-  setTimeout(() => {
-    useMock = false;
-  }, 30_000);
 }
 
 async function fetchPythJson<T>(url: string, body: Record<string, unknown>): Promise<T> {
@@ -81,10 +72,6 @@ export async function fetchPrice(asset: string): Promise<PriceData> {
   const feedId = await getFeedId(asset);
   if (!feedId) throw new Error(`Unknown asset: ${asset}`);
 
-  if (useMock) {
-    return getMockPrice(asset);
-  }
-
   try {
     const data = await fetchPythJson<{
       parsed?: Array<{
@@ -103,7 +90,10 @@ export async function fetchPrice(asset: string): Promise<PriceData> {
 
     const parsed = data.parsed?.[0];
     if (!parsed) {
-      enableMockTemporarily();
+      const fallback = lastKnownPrices.get(asset);
+      if (fallback) {
+        return fallback;
+      }
       return getMockPrice(asset);
     }
 
@@ -112,16 +102,22 @@ export async function fetchPrice(asset: string): Promise<PriceData> {
     const confidence = Number(priceData.conf) * Math.pow(10, priceData.expo);
     const publishTime = priceData.publish_time ?? parsed.publish_time ?? 0;
 
-    return {
+    const nextPrice = {
       asset,
       price,
       confidence,
       timestamp: publishTime * 1000,
       expo: priceData.expo,
-    };
+    } satisfies PriceData;
+
+    lastKnownPrices.set(asset, nextPrice);
+    return nextPrice;
   } catch (error) {
     console.warn('Pyth API error:', error);
-    enableMockTemporarily();
+    const fallback = lastKnownPrices.get(asset);
+    if (fallback) {
+      return fallback;
+    }
     return getMockPrice(asset);
   }
 }

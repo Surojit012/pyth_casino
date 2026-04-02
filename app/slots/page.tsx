@@ -24,6 +24,7 @@ type ReelStrip = string[];
 const BET_PRESETS = [0.01, 0.05, 0.1, 0.25];
 const SUPPORTED_ASSETS = ['SOL', 'ETH', 'BTC', 'PYTH'] as const;
 type SupportedAsset = typeof SUPPORTED_ASSETS[number];
+const MAX_PENDING_SPIN_MS = 90_000;
 
 const REEL_STOP_TIMINGS = {
   LOW: [1150, 1750, 2350],
@@ -48,6 +49,7 @@ interface PendingSpin {
   provider: string;
   providerLabel: string;
   message?: string;
+  createdAt: number;
 }
 
 interface PolledRandomnessRequest {
@@ -377,6 +379,7 @@ export default function SlotsPage() {
         provider: spinPayload.provider,
         providerLabel: spinPayload.providerLabel,
         message: spinPayload.message,
+        createdAt: Date.now(),
       });
       playCue('click');
       return;
@@ -480,6 +483,17 @@ export default function SlotsPage() {
 
         const request = payload?.request as PolledRandomnessRequest | undefined;
         if (!request || cancelled) return;
+
+        const pendingAgeMs = Date.now() - pendingSpin.createdAt;
+
+        if (pendingAgeMs > MAX_PENDING_SPIN_MS) {
+          setPendingSpin(null);
+          setGameState('idle');
+          setSpinningReels([false, false, false]);
+          setSpinError('Entropy spin timed out. The request took too long to fulfill, so the spin was cancelled safely.');
+          playCue('lose');
+          return;
+        }
 
         if (request.status === 'failed') {
           setPendingSpin(null);
@@ -654,7 +668,13 @@ export default function SlotsPage() {
             <>
               <span className={styles.ribbonLabel}>Pending Randomness</span>
               <strong>Awaiting {pendingSpin.providerLabel}</strong>
-              <small>{pendingSpin.message ?? `Request ${pendingSpin.requestId.slice(0, 12)}...`}</small>
+              <small>
+                {pendingSpin.message ??
+                  `Request ${pendingSpin.requestId.slice(0, 12)}... • ${Math.max(
+                    1,
+                    Math.floor((Date.now() - pendingSpin.createdAt) / 1000)
+                  )}s`}
+              </small>
             </>
           ) : spinError ? (
             <>
