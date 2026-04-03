@@ -1,144 +1,124 @@
 'use client';
 
-import { useWallet } from '@/context/WalletContext';
-import { useLiveBets } from '@/context/LiveBetsContext';
-import { useMarketData, type MarketAsset } from '@/context/MarketDataContext';
-import GameCard from '@/components/GameCard';
-import LiveBetsFeed from '@/components/LiveBetsFeed';
-import MarketPulse from '@/components/MarketPulse';
-import { formatPrice, ASSET_SYMBOLS } from '@/lib/pyth';
-import { SymbolIcon } from '@/components/SymbolIcon';
-import { Wallet, Target, Gamepad2, Skull, RefreshCw, ArrowUpRight, ArrowDownRight, Minus } from 'lucide-react';
-import styles from './page.module.css';
+import Link from 'next/link';
+import { 
+  Zap, 
+  ShieldCheck, 
+  Coins, 
+  ArrowRight, 
+  Gamepad2, 
+  Target, 
+  Skull,
+  BarChart3,
+  Dices
+} from 'lucide-react';
+import styles from './landing.module.css';
 
-const HERO_ASSETS: MarketAsset[] = ['SOL'];
-
-export default function Home() {
-  const { balance, totalBets, totalWon, gamesPlayed, resetBalance } = useWallet();
-  const { bets } = useLiveBets();
-  const { assets, sourceLabel } = useMarketData();
-
+export default function LandingPage() {
   return (
-    <div className={styles.page}>
+    <div className={styles.container}>
+      {/* Hero Section */}
       <section className={styles.hero}>
-        <div className={styles.heroLeft}>
-          <h1 className={styles.heroTitle}>
-            <span className={styles.heroLine}>SOL</span>
-            <span className={styles.heroLine}>CASINO</span>
-          </h1>
-          <p className={styles.heroTagline}>markets are the house</p>
-          <p className={styles.heroSub}>
-            Three games. One live market engine. Every round reacts to SOL market movement in real time.
-          </p>
-        </div>
-
-        <aside className={styles.heroPanel}>
-          <div className={styles.heroPanelHeader}>
-            <span className={styles.liveLabel}>LIVE</span>
-            <span className={styles.heroPanelSource}>SOL Mainnet Stream</span>
-          </div>
-          <div className={styles.heroMarketList}>
-            {HERO_ASSETS.map(symbol => {
-              const market = assets[symbol];
-              const change = market.anchorChange;
-              const directionIcon = market.anchorDirection === 'up'
-                ? <ArrowUpRight size={14} />
-                : market.anchorDirection === 'down'
-                  ? <ArrowDownRight size={14} />
-                  : <Minus size={14} />;
-
-              return (
-                <div key={symbol} className={styles.heroMarketRow}>
-                  <div className={styles.heroMarketAsset}>
-                    <span className={styles.heroMarketIcon}>
-                      <SymbolIcon symbol={ASSET_SYMBOLS[symbol]} size={18} />
-                    </span>
-                    <span className={styles.heroMarketSymbol}>{symbol}</span>
-                  </div>
-                  <div className={styles.heroMarketData}>
-                    <strong>${formatPrice(market.anchorPrice)}</strong>
-                    <span className={change >= 0 ? styles.up : styles.down}>
-                      {directionIcon} {change >= 0 ? '+' : ''}{change.toFixed(2)}%
-                    </span>
-                  </div>
-                  <span className={styles.heroVolatility}>Vol: {market.volatilityLevel}</span>
-                </div>
-              );
-            })}
-          </div>
-          <p className={styles.heroPanelFoot}>{sourceLabel}</p>
-        </aside>
-      </section>
-
-      <section className={styles.statsBar}>
-        <div className={styles.statItem}>
-          <span className={styles.statValue}>
-            <span style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
-              <Wallet size={20} /> {balance.toLocaleString()}
-            </span>
-          </span>
-          <span className={styles.statLabel}>Balance</span>
-        </div>
-        <div className={styles.statDivider} />
-        <div className={styles.statItem}>
-          <span className={styles.statValue}>{gamesPlayed}</span>
-          <span className={styles.statLabel}>Games Played</span>
-        </div>
-        <div className={styles.statDivider} />
-        <div className={styles.statItem}>
-          <span className={styles.statValue}>{totalBets.toLocaleString()}</span>
-          <span className={styles.statLabel}>Total Wagered</span>
-        </div>
-        <div className={styles.statDivider} />
-        <div className={styles.statItem}>
-          <span className={styles.statValue}>{totalWon.toLocaleString()}</span>
-          <span className={styles.statLabel}>Total Won</span>
-        </div>
-      </section>
-
-      <MarketPulse />
-      {bets.length > 0 ? <LiveBetsFeed /> : null}
-
-      <section className={styles.games}>
-        <h2 className={styles.sectionTitle}>Lobby</h2>
-        <div className={styles.gamesLayout}>
-          <div className={styles.featuredRow}>
-            <GameCard
-              href="/roulette"
-              icon={<Target size={32} />}
-              title="Price Roulette"
-              description="Take a directional bet and let the live market settle the round with live volatility-sensitive payout logic."
-              tag="FEATURED"
-              size="featured"
-              ctaLabel="Enter"
-            />
-          </div>
-          <div className={styles.secondaryRow}>
-            <GameCard
-              href="/slots"
-              icon={<Gamepad2 size={30} />}
-              title="Volatility Slots"
-              description="Entropy-driven reels with volatility-multiplied payouts."
-              ctaLabel="Play"
-            />
-            <GameCard
-              href="/liquidation"
-              icon={<Skull size={30} />}
-              title="Liquidation Game"
-              description="Scale leverage and survive rising danger levels."
-              ctaLabel="Play"
-            />
-          </div>
-        </div>
-      </section>
-
-      <section className={styles.powered}>
-        <p className={styles.poweredText}>
-          Powered by <span className={styles.poweredAccent}>Solana Mainnet</span> — live-chain gameplay and wallet-native settlement
+        <div className={styles.flare}></div>
+        <h1 className={styles.heroTitle}>
+          Where Markets Are <br /> The <span className={styles.heroAccent}>House</span>
+        </h1>
+        <p className={styles.heroSub}>
+          The world's first Solana-native casino driven by live market volatility and cryptographic entropy. Experience real-time gameplay where every price tick matters.
         </p>
+        <Link href="/lobby">
+          <button className={styles.ctaButton}>
+            Launch App <ArrowRight size={18} style={{ marginLeft: '12px' }} />
+          </button>
+        </Link>
       </section>
 
+      {/* How It Works Section */}
+      <section className={styles.section}>
+        <h2 className={styles.sectionTitle}>The Engine of Fair Play</h2>
+        <div className={styles.grid}>
+          <div className={styles.glassCard}>
+            <BarChart3 size={40} className={styles.cardIcon} />
+            <h3 className={styles.cardTitle}>Live Oracle Data</h3>
+            <p className={styles.cardText}>
+              Powered by Pyth Network's high-frequency price feeds. Our games react instantly to liquid market movements on the Solana mainnet.
+            </p>
+          </div>
+          <div className={styles.glassCard}>
+            <Zap size={40} className={styles.cardIcon} />
+            <h3 className={styles.cardTitle}>Volatility Dynamics</h3>
+            <p className={styles.cardText}>
+              The "House Edge" isn't a fixed number. Payouts and multipliers dynamically shift based on real-time market volatility and confidence intervals.
+            </p>
+          </div>
+          <div className={styles.glassCard}>
+            <ShieldCheck size={40} className={styles.cardIcon} />
+            <h3 className={styles.cardTitle}>Crypto Entropy</h3>
+            <p className={styles.cardText}>
+              Every spin is backed by Pyth Entropy, ensuring provably fair on-chain randomness that can be verified by anyone, anytime.
+            </p>
+          </div>
+        </div>
+      </section>
 
+      {/* Games Showcase Section */}
+      <section className={`${styles.section} ${styles.howItWorks}`}>
+        <h2 className={styles.sectionTitle}>Provably Fair Games</h2>
+        <div className={styles.grid}>
+          <div className={styles.glassCard}>
+            <Target size={40} className={styles.cardIcon} />
+            <h3 className={styles.cardTitle}>Price Roulette</h3>
+            <p className={styles.cardText}>
+              Bet on the split-second direction of SOL. High-velocity rounds with dynamic settlement.
+            </p>
+          </div>
+          <div className={styles.glassCard}>
+            <Gamepad2 size={40} className={styles.cardIcon} />
+            <h3 className={styles.cardTitle}>Volatility Slots</h3>
+            <p className={styles.cardText}>
+              Experience the rush as slot multipliers expand and contract with the live market's pulse.
+            </p>
+          </div>
+          <div className={styles.glassCard}>
+            <Skull size={40} className={styles.cardIcon} />
+            <h3 className={styles.cardTitle}>Liquidation Game</h3>
+            <p className={styles.cardText}>
+              The ultimate test of survival. Manage your leverage against a rising tide of danger levels.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* Trust & Transparency */}
+      <section className={styles.section}>
+        <div className={styles.glassCard} style={{ textAlign: 'center', maxWidth: '800px', margin: '0 auto' }}>
+          <Coins size={48} className={styles.cardIcon} style={{ margin: '0 auto 24px' }} />
+          <h2 className={styles.cardTitle} style={{ fontSize: '2rem' }}>Native Solana Settlement</h2>
+          <p className={styles.cardText}>
+            No intermediaries. No custodians. Every bet is a direct interaction with the Solana blockchain. Connect your Phantom wallet and play with SOL instantly.
+          </p>
+          <div style={{ marginTop: '40px' }}>
+            <Link href="/lobby">
+              <button className={styles.ctaButton}>Get Started</button>
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className={styles.footer}>
+        <Link href="/" className={styles.footerLogo}>
+          <Dices size={24} style={{ marginRight: '8px', verticalAlign: 'middle', color: 'var(--primary)' }} />
+          SOL<span style={{ color: 'var(--primary)' }}>CASINO</span>
+        </Link>
+        <div className={styles.footerLinks}>
+          <Link href="/lobby" className={styles.footerLink}>Lobby</Link>
+          <Link href="/roulette" className={styles.footerLink}>Roulette</Link>
+          <Link href="/slots" className={styles.footerLink}>Slots</Link>
+          <Link href="/liquidation" className={styles.footerLink}>Liquidation</Link>
+        </div>
+        <p className={styles.copyright}>© 2024 SOL Casino. Built on Solana & Pyth.</p>
+      </footer>
     </div>
   );
 }

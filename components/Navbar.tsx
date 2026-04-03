@@ -22,7 +22,7 @@ import {
 } from 'lucide-react';
 
 const NAV_LINKS = [
-  { href: '/', label: 'Lobby', icon: <Home size={16} /> },
+  { href: '/lobby', label: 'Lobby', icon: <Home size={16} /> },
   { href: '/roulette', label: 'Roulette', icon: <Target size={16} /> },
   { href: '/slots', label: 'Slots', icon: <Gamepad2 size={16} /> },
   { href: '/liquidation', label: 'Liquidation', icon: <Skull size={16} /> },
