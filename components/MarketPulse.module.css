@@ -1,9 +1,12 @@
 .pulse {
   margin-bottom: var(--space-2xl);
-  padding: clamp(18px, 2.8vw, 30px);
+  padding: clamp(24px, 3.5vw, 40px);
   border: 1px solid var(--border-color);
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-xl);
   background: var(--bg-card);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  box-shadow: 0 12px 32px -8px rgba(0, 0, 0, 0.5), inset 0 1px 1px rgba(255, 255, 255, 0.05);
 }
 
 .header {
@@ -61,10 +64,17 @@
 }
 
 .card {
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-md);
-  background: rgba(255, 255, 255, 0.015);
-  padding: var(--space-md);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-lg);
+  background: rgba(0, 0, 0, 0.2);
+  padding: var(--space-lg);
+  transition: transform var(--transition-fast), border-color var(--transition-fast), background-color var(--transition-fast);
+}
+
+.card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(255,42,0, 0.4);
+  background: rgba(255, 255, 255, 0.03);
 }
 
 .cardTop {

@@ -12,9 +12,12 @@
 
 .hero {
   padding: 16px;
-  border-radius: 12px;
+  border-radius: var(--radius-xl);
   border: 1px solid var(--border-color);
-  background: rgba(17, 18, 23, 0.96);
+  background: var(--bg-card);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-shadow: 0 4px 24px -4px rgba(0, 0, 0, 0.4), inset 0 1px 1px rgba(255, 255, 255, 0.05);
   display: grid;
   gap: 14px;
   margin-bottom: 12px;
@@ -116,6 +119,9 @@
   padding: 12px;
   border-radius: 10px;
   background: rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
   display: grid;
   gap: 3px;
 }
@@ -250,9 +256,12 @@
 
 .betCard {
   padding: 16px;
-  border-radius: 12px;
+  border-radius: var(--radius-xl);
   border: 1px solid var(--border-color);
-  background: rgba(17, 18, 23, 0.96);
+  background: var(--bg-card);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-shadow: 0 4px 24px -4px rgba(0, 0, 0, 0.4), inset 0 1px 1px rgba(255, 255, 255, 0.05);
   display: grid;
   gap: 14px;
 }

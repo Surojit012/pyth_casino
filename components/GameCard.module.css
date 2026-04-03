@@ -4,23 +4,26 @@
   flex-direction: column;
   align-items: flex-start;
   text-align: left;
-  padding: 20px;
-  background: var(--surface);
+  padding: 24px;
+  background: var(--bg-card);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
   border: 1px solid var(--border-color);
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-xl);
   text-decoration: none;
   overflow: hidden;
-  transition: transform var(--transition-fast), box-shadow var(--transition-fast), border-color var(--transition-fast);
+  box-shadow: 0 4px 24px -4px rgba(0, 0, 0, 0.4), inset 0 1px 1px rgba(255, 255, 255, 0.05);
+  transition: transform var(--transition-spring), box-shadow var(--transition-base), border-color var(--transition-base);
 }
 
 .card:hover {
-  transform: translateY(-4px);
-  border-color: var(--border-strong);
-  box-shadow: 0 12px 20px rgba(0, 0, 0, 0.18);
+  transform: translateY(-6px) scale(1.02);
+  border-color: var(--border-glow);
+  box-shadow: 0 24px 48px -12px rgba(0, 0, 0, 0.6), 0 0 24px 0 rgba(255, 42, 0, 0.15), inset 0 1px 1px rgba(255, 255, 255, 0.1);
 }
 
 .card:hover .ctaArrow {
-  transform: translateX(3px);
+  transform: translateX(4px);
 }
 
 .tag {
@@ -58,10 +61,10 @@
 
 .title {
   font-family: var(--font-display);
-  font-size: clamp(1.1rem, 2vw, 1.35rem);
+  font-size: clamp(1.2rem, 2.5vw, 1.5rem);
   font-weight: 800;
-  letter-spacing: -0.03em;
-  margin-bottom: 8px;
+  letter-spacing: -0.04em;
+  margin-bottom: 10px;
   color: var(--text-primary);
   line-height: 1.05;
 }

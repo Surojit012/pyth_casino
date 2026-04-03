@@ -56,7 +56,6 @@ export default function Navbar() {
             <span className={styles.logoIcon}><Dices size={18} /></span>
             <span className={styles.logoText}>SOL<span className={styles.logoAccent}>CASINO</span></span>
           </Link>
-          <span className={styles.sourceBadge}>{sourceLabel}</span>
         </div>
 
         <div className={styles.links}>
@@ -73,14 +72,6 @@ export default function Navbar() {
         </div>
 
         <div className={styles.right}>
-          <div className={styles.ticker}>
-            <span className={styles.liveDot} />
-            <span className={styles.tickerLabel}>Live</span>
-            <span className={styles.tickerSep}>•</span>
-            <span className={styles.tickerAsset}>SOL</span>
-            <span className={sol >= 0 ? styles.tickerPositive : styles.tickerNegative}>{signedPercent(sol)}</span>
-          </div>
-
           <button
             className={styles.soundToggle}
             onClick={() => {

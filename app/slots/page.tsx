@@ -178,10 +178,15 @@ export default function SlotsPage() {
   const winningIndexes = useMemo(() => (result ? getWinningIndexes(result.symbols) : []), [result]);
   const configuredProvider = getConfiguredSlotsRandomnessProviderClient();
   const randomnessProviderLabel = useMemo(() => {
-    if (pendingSpin?.providerLabel) return `Randomness: ${pendingSpin.providerLabel}`;
-    if (result?.provider) return `Randomness: ${getConfiguredSlotsRandomnessProviderLabel(result.provider as 'local' | 'pyth_entropy_v2')}`;
-    return `Randomness: ${getConfiguredSlotsRandomnessProviderLabel(configuredProvider)}`;
+    if (pendingSpin?.providerLabel) return pendingSpin.providerLabel;
+    if (result?.provider) return getConfiguredSlotsRandomnessProviderLabel(result.provider as 'local' | 'pyth_entropy_v2');
+    return getConfiguredSlotsRandomnessProviderLabel(configuredProvider);
   }, [configuredProvider, pendingSpin?.providerLabel, result?.provider]);
+  const randomnessBadgeValue = useMemo(() => {
+    if (randomnessProviderLabel === 'Pyth Entropy v2') return 'Entropy v2';
+    if (randomnessProviderLabel === 'Local Provider') return 'Local';
+    return randomnessProviderLabel;
+  }, [randomnessProviderLabel]);
   const previewMultiplier = useMemo(() => {
     if (volatilityLevel === 'HIGH') return 'Hot Reels';
     if (volatilityLevel === 'MEDIUM') return 'Charged';
@@ -630,9 +635,16 @@ export default function SlotsPage() {
           </div>
         </div>
 
-        <div className={styles.randomnessBadge}>
+        <div
+          className={styles.randomnessBadge}
+          aria-label={`Randomness source ${randomnessProviderLabel}`}
+          title={`Randomness source: ${randomnessProviderLabel}`}
+        >
           <span className={styles.randomnessDot} />
-          <span>{randomnessProviderLabel}</span>
+          <div className={styles.randomnessMeta}>
+            <span className={styles.randomnessLabel}>Randomness</span>
+            <strong className={styles.randomnessValue}>{randomnessBadgeValue}</strong>
+          </div>
         </div>
       </section>
 
