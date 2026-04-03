@@ -3,8 +3,16 @@ type NonceRecord = {
   expires: number;
 };
 
+declare global {
+  var __pythCasinoNonceStore: Map<string, NonceRecord> | undefined;
+}
+
 const FIVE_MINUTES_MS = 5 * 60 * 1000;
-const nonceStore = new Map<string, NonceRecord>();
+const nonceStore = global.__pythCasinoNonceStore || new Map<string, NonceRecord>();
+
+if (process.env.NODE_ENV !== 'production') {
+  global.__pythCasinoNonceStore = nonceStore;
+}
 
 function cleanupExpired() {
   const now = Date.now();
