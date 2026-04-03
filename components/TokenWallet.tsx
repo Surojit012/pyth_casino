@@ -92,6 +92,7 @@ export default function TokenWallet() {
   const [activeAction, setActiveAction] = useState<WalletAction>(null);
   const [mounted, setMounted] = useState(false);
   const [lastCompletedTransfer, setLastCompletedTransfer] = useState<CompletedTransfer | null>(null);
+  const [isAuthenticating, setIsAuthenticating] = useState(false);
   const authInFlightRef = useRef(false);
 
   const walletAddress = useMemo(() => publicKey?.toBase58() ?? '', [publicKey]);
@@ -117,6 +118,7 @@ export default function TokenWallet() {
     if (authInFlightRef.current) return false;
 
     authInFlightRef.current = true;
+    setIsAuthenticating(true);
     try {
       assertBrowserDomain();
       const nonceResponse = await fetch(`/api/auth/nonce?wallet=${encodeURIComponent(walletAddress)}`);
@@ -158,6 +160,7 @@ export default function TokenWallet() {
       return false;
     } finally {
       authInFlightRef.current = false;
+      setIsAuthenticating(false);
     }
   };
 
@@ -291,20 +294,33 @@ export default function TokenWallet() {
         </div>
 
         <div className={styles.actionRow}>
-          <button
-            className={`${styles.actionBtn} micro-press`}
-            onClick={() => setActiveAction('deposit')}
-            disabled={!connected || unsupportedWallet || tokenLoading}
-          >
-            <ArrowDownLeft size={16} /> Deposit
-          </button>
-          <button
-            className={`${styles.actionBtn} micro-press`}
-            onClick={() => setActiveAction('withdraw')}
-            disabled={!connected || unsupportedWallet || tokenLoading}
-          >
-            <ArrowUpRight size={16} /> Withdraw
-          </button>
+          {connected && !isAuthenticated && !unsupportedWallet ? (
+            <button
+              style={{ flex: 1, justifyContent: 'center' }}
+              className={`${styles.actionBtn} micro-press`}
+              onClick={() => void authenticateWallet()}
+              disabled={isAuthenticating}
+            >
+              {isAuthenticating ? 'Authenticating...' : 'Authenticate Wallet'}
+            </button>
+          ) : (
+            <>
+              <button
+                className={`${styles.actionBtn} micro-press`}
+                onClick={() => setActiveAction('deposit')}
+                disabled={!connected || unsupportedWallet || tokenLoading}
+              >
+                <ArrowDownLeft size={16} /> Deposit
+              </button>
+              <button
+                className={`${styles.actionBtn} micro-press`}
+                onClick={() => setActiveAction('withdraw')}
+                disabled={!connected || unsupportedWallet || tokenLoading}
+              >
+                <ArrowUpRight size={16} /> Withdraw
+              </button>
+            </>
+          )}
         </div>
 
         {visibleError ? <p className={styles.error}>{visibleError}</p> : null}
